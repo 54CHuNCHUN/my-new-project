@@ -34,9 +34,7 @@
             opacity: 1; transition: opacity 0.6s ease;
         }
         .splash-logo { font-size: 42px; font-weight: 100; color: var(--primary); letter-spacing: 15px; margin-bottom: 25px; }
-        #splash-quote { font-size: 14px; color: var(--sub); text-align: center; padding: 0 40px; line-height: 1.8; font-weight: 300; }
 
-        /* App Content Wrapper */
         #app-content { display: none; opacity: 0; transition: opacity 0.5s ease; }
         #app-content.visible { display: block; opacity: 1; }
 
@@ -45,7 +43,6 @@
 
         .brand { font-size: 32px; font-weight: 100; color: var(--primary); letter-spacing: 10px; text-align: center; margin: 50px 0 20px; }
         
-        /* Dashboard */
         .dashboard {
             background: var(--primary); color: white; border-radius: 35px; padding: 35px 24px;
             margin-bottom: 25px; box-shadow: 0 15px 30px rgba(140, 118, 98, 0.15);
@@ -57,11 +54,10 @@
         .grid-v { font-size: 14px; font-weight: 500; }
         .grid-l { font-size: 9px; opacity: 0.6; margin-top: 4px; }
 
-        /* UI Elements */
         .section-header { font-size: 12px; font-weight: 700; color: var(--sub); letter-spacing: 2px; margin: 35px 0 15px 5px; display: flex; justify-content: space-between; align-items: center; }
         .action-text { color: var(--primary); cursor: pointer; font-size: 11px; }
         
-        .card { background: var(--card); border-radius: 24px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .card { background: var(--card); border-radius: 24px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--border); transition: 0.2s; }
         .card:active { transform: scale(0.98); background: #fcfcfc; }
 
         .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -69,7 +65,6 @@
         .quick-btn span { display: block; font-size: 10px; color: var(--sub); }
         .quick-btn strong { display: block; color: var(--primary); font-size: 15px; margin-top: 4px; }
 
-        /* Modal & Forms */
         .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: flex-end; }
         .modal-content { background: white; border-radius: 35px 35px 0 0; width: 100%; padding: 35px 24px 50px; max-height: 90vh; overflow-y: auto; }
         
@@ -88,6 +83,34 @@
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
         .chip { padding: 9px 18px; background: #f0f0f0; border-radius: 50px; font-size: 13px; }
         .chip.active { background: var(--primary); color: white; }
+
+        /* 計算機懸浮鈕優化 */
+        #calc-toggle {
+            position: fixed; right: 24px; bottom: 110px; width: 56px; height: 56px;
+            background: var(--primary); border-radius: 50%; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 20px rgba(140, 118, 98, 0.4); z-index: 1500; cursor: pointer; color: white; transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+        #calc-toggle:active { transform: scale(0.9); }
+        #calc-toggle svg { width: 24px; height: 24px; fill: currentColor; }
+
+        /* 計算機本體 */
+        #calc-box {
+            position: fixed; right: 24px; bottom: 180px; width: 280px; background: white;
+            border-radius: 24px; box-shadow: 0 15px 40px rgba(0,0,0,0.15); display: none;
+            flex-direction: column; overflow: hidden; z-index: 1600; border: 1px solid var(--border);
+            animation: slideUp 0.3s ease-out;
+        }
+        @keyframes slideUp { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        
+        #calc-display { background: #f8f8f8; padding: 25px 20px; text-align: right; font-size: 24px; font-weight: 300; min-height: 80px; color: var(--text); overflow-x: auto; white-space: nowrap; }
+        .calc-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: #eee; }
+        .calc-grid button { border: none; background: white; padding: 18px; font-size: 18px; cursor: pointer; transition: background 0.1s; }
+        .calc-grid button:active { background: #f2f2f2; }
+        .calc-grid .op { background: #fafafa; color: var(--primary); font-weight: bold; }
+        .calc-grid .eq { background: var(--primary); color: white; }
+
+        .salary-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 5px; }
+        .salary-row label { font-size: 11px; color: var(--sub); padding-left: 5px; }
     </style>
 </head>
 <body>
@@ -97,8 +120,38 @@
         <div id="splash-quote">「紀錄，是為了看見生活的樣貌。」</div>
     </div>
 
+    <!-- 優化後的懸浮計算機鈕 (SVG) -->
+    <div id="calc-toggle" onclick="ui.toggleCalc()">
+        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+            <path d="M19,2H5A3,3,0,0,0,2,5V19a3,3,0,0,0,3,3H19a3,3,0,0,0,3,-3V5A3,3,0,0,0,19,2ZM7,7H9V9H7V7ZM7,11H9V13H7V11ZM7,15H9V17H7V15ZM17,17H11V15H17V17ZM17,13H15V11H17V13ZM17,9H15V7H17V9ZM13,9H11V7H13V9ZM13,13H11V11H13V13Z"/>
+        </svg>
+    </div>
+
+    <div id="calc-box">
+        <div id="calc-display">0</div>
+        <div class="calc-grid">
+            <button onclick="calc.clear()" class="op">C</button>
+            <button onclick="calc.del()" class="op">←</button>
+            <button onclick="calc.input('/')" class="op">÷</button>
+            <button onclick="calc.input('*')" class="op">×</button>
+            <button onclick="calc.input('7')">7</button>
+            <button onclick="calc.input('8')">8</button>
+            <button onclick="calc.input('9')">9</button>
+            <button onclick="calc.input('-')" class="op">-</button>
+            <button onclick="calc.input('4')">4</button>
+            <button onclick="calc.input('5')">5</button>
+            <button onclick="calc.input('6')">6</button>
+            <button onclick="calc.input('+')" class="op">+</button>
+            <button onclick="calc.input('1')">1</button>
+            <button onclick="calc.input('2')">2</button>
+            <button onclick="calc.input('3')">3</button>
+            <button onclick="calc.equal()" class="eq" style="grid-row: span 2">=</button>
+            <button onclick="calc.input('0')" style="grid-column: span 2">0</button>
+            <button onclick="calc.input('.')">.</button>
+        </div>
+    </div>
+
     <div id="app-content">
-        <!-- 頁面：首頁 -->
         <div id="page-home" class="page active">
             <div class="brand">CHUN</div>
             <div class="section-header">年度手帳 <span class="action-text" onclick="app.addYear()">+ 新增</span></div>
@@ -106,16 +159,19 @@
             
             <div class="section-header">帳戶資產 <span class="action-text" onclick="app.openModal('modal-acc')">設定</span></div>
             <div id="asset-list"></div>
+
+            <div class="section-header">資料安全</div>
+            <div class="card" onclick="app.exportData()" style="text-align:center; padding:15px; border-style:dashed;">
+                <span style="font-size:12px; color:var(--sub);">匯出資料備份 (手動複製存檔)</span>
+            </div>
         </div>
 
-        <!-- 頁面：月份 -->
         <div id="page-months" class="page">
             <div style="color:var(--sub); margin-bottom:20px;" onclick="app.showPage('page-home')">← 返回</div>
             <h2 id="disp-year" style="font-weight: 300; font-size: 32px;"></h2>
             <div id="month-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;"></div>
         </div>
 
-        <!-- 頁面：詳情 -->
         <div id="page-detail" class="page" style="padding-top:0">
             <div class="dashboard">
                 <div onclick="app.showPage('page-months')" style="font-size:12px; opacity:0.6; margin-bottom:15px;">← 月份列表</div>
@@ -130,7 +186,7 @@
 
             <div style="display:flex; justify-content:space-between; align-items:center;">
                 <h2 id="disp-month" style="font-weight:300;"></h2>
-                <div onclick="app.openModal('modal-income')" style="font-size:11px; border:1px solid #eee; padding:6px 12px; border-radius:10px;">設定收入</div>
+                <div onclick="app.openModal('modal-income')" style="font-size:11px; border:1px solid #eee; padding:6px 12px; border-radius:10px; background: white;">設定薪資收入</div>
             </div>
 
             <textarea id="input-reflection" placeholder="今天的點滴..." onblur="app.saveReflection(this.value)" style="margin-top:15px;"></textarea>
@@ -138,7 +194,7 @@
             <div class="section-header">快速記帳</div>
             <div class="quick-grid" id="quick-btns"></div>
 
-            <div class="section-header">預算與計畫 <span class="action-text" onclick="app.openModal('modal-plan')">+ 新增</span></div>
+            <div class="section-header">計畫 <span class="action-text" onclick="app.openModal('modal-plan')">+ 新增</span></div>
             <div id="plan-list"></div>
 
             <div class="section-header">消費明細</div>
@@ -153,16 +209,29 @@
 
     <!-- Modals -->
     <div id="modal-income" class="modal"><div class="modal-content">
-        <h3>設定本月總收入</h3>
-        <input type="number" id="in-inc" placeholder="本月實領收入">
-        <button class="btn" onclick="app.saveIncome()">確認</button>
+        <h3>薪資明細設定</h3>
+        <div class="salary-row"><label>基本底薪 (+)</label><label>加班/獎金 (+)</label></div>
+        <div class="salary-row">
+            <input type="number" id="in-inc-base" placeholder="0" inputmode="decimal" oninput="app.calcSalaryTotal()">
+            <input type="number" id="in-inc-bonus" placeholder="0" inputmode="decimal" oninput="app.calcSalaryTotal()">
+        </div>
+        <div class="salary-row"><label>勞健保/扣項 (-)</label><label>其他收入 (+)</label></div>
+        <div class="salary-row">
+            <input type="number" id="in-inc-deduct" placeholder="0" inputmode="decimal" oninput="app.calcSalaryTotal()">
+            <input type="number" id="in-inc-other" placeholder="0" inputmode="decimal" oninput="app.calcSalaryTotal()">
+        </div>
+        <div style="background:#f9f9f9; padding:15px; border-radius:12px; margin-bottom:15px; text-align:center;">
+            <div style="font-size:12px; color:var(--sub);">預估實領總計</div>
+            <div id="salary-total-preview" style="font-size:24px; color:var(--primary); font-weight:bold;">$ 0</div>
+        </div>
+        <button class="btn" onclick="app.saveIncome()">儲存收入設定</button>
         <button class="btn btn-ghost" onclick="app.closeModal('modal-income')">取消</button>
     </div></div>
 
     <div id="modal-plan" class="modal"><div class="modal-content">
         <h3>新增計畫</h3>
         <input type="text" id="in-p-name" placeholder="項目名稱">
-        <input type="number" id="in-p-amt" placeholder="計畫金額">
+        <input type="number" id="in-p-amt" placeholder="金額" inputmode="decimal">
         <select id="in-p-type"><option value="固定">固定支出</option><option value="存款">理想儲蓄</option></select>
         <button class="btn" onclick="app.savePlan()">新增</button>
         <button class="btn btn-ghost" onclick="app.closeModal('modal-plan')">取消</button>
@@ -183,14 +252,47 @@
         <div id="acc-list"></div>
         <hr style="border:none; border-top:1px solid #eee; margin:20px 0;">
         <input type="text" id="in-a-name" placeholder="新帳戶名稱">
-        <input type="number" id="in-a-bal" placeholder="初始餘額">
+        <input type="number" id="in-a-bal" placeholder="初始餘額" inputmode="decimal">
         <button class="btn" onclick="app.saveAcc()">新增帳戶</button>
         <button class="btn btn-ghost" onclick="app.closeModal('modal-acc')">關閉</button>
     </div></div>
 
     <script>
-        // --- 核心 App 邏輯 ---
+        const calc = {
+            expr: "",
+            input(v) {
+                if (this.expr === "0" && v !== ".") this.expr = "";
+                this.expr += v;
+                this.update();
+            },
+            clear() { this.expr = "0"; this.update(); },
+            del() { this.expr = this.expr.slice(0, -1) || "0"; this.update(); },
+            equal() {
+                try {
+                    const res = eval(this.expr.replace('×', '*').replace('÷', '/'));
+                    this.expr = String(Math.round(res * 100) / 100);
+                } catch { this.expr = "Error"; }
+                this.update();
+            },
+            update() { document.getElementById('calc-display').innerText = this.expr || "0"; }
+        };
+
+        const ui = {
+            toggleCalc() {
+                const box = document.getElementById('calc-box');
+                const btn = document.getElementById('calc-toggle');
+                if (box.style.display === 'flex') {
+                    box.style.display = 'none';
+                    btn.innerHTML = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M19,2H5A3,3,0,0,0,2,5V19a3,3,0,0,0,3,3H19a3,3,0,0,0,3,-3V5A3,3,0,0,0,19,2ZM7,7H9V9H7V7ZM7,11H9V13H7V11ZM7,15H9V17H7V15ZM17,17H11V15H17V17ZM17,13H15V11H17V13ZM17,9H15V7H17V9ZM13,9H11V7H13V9ZM13,13H11V11H13V13Z"/></svg>`;
+                } else {
+                    box.style.display = 'flex';
+                    btn.innerHTML = `<span style="font-size: 24px;">✕</span>`;
+                }
+            }
+        };
+
         const app = {
+            STORAGE_KEY: 'chun_finance_v6_data',
             state: {
                 years: ["2025"],
                 accounts: [{name: "現金", bal: 0}, {name: "中信", bal: 0}, {name: "台新", bal: 0}, {name: "國泰", bal: 0}],
@@ -200,32 +302,35 @@
             context: { year: "2025", month: "一月", account: "", category: "食" },
 
             init() {
-                // 優先從 LocalStorage 讀取資料 (防止 GitHub 環境無法存取 DB)
-                const localData = localStorage.getItem('chun_finance_data');
-                if (localData) this.state = JSON.parse(localData);
-
+                const oldData = localStorage.getItem('chun_finance_data');
+                const newData = localStorage.getItem(this.STORAGE_KEY);
+                if (newData) this.state = JSON.parse(newData);
+                else if (oldData) { this.state = JSON.parse(oldData); this.save(); }
                 this.render();
-                this.unlock();
-            },
-
-            unlock() {
-                const splash = document.getElementById('splash');
-                const content = document.getElementById('app-content');
                 setTimeout(() => {
-                    splash.style.opacity = '0';
-                    content.classList.add('visible');
-                    setTimeout(() => splash.style.display = 'none', 600);
-                }, 2000); // 確保 2 秒後一定解鎖
+                    document.getElementById('splash').style.opacity = '0';
+                    document.getElementById('app-content').classList.add('visible');
+                    setTimeout(() => document.getElementById('splash').style.display = 'none', 600);
+                }, 2000);
             },
 
-            save() {
-                localStorage.setItem('chun_finance_data', JSON.stringify(this.state));
-                this.render();
+            save() { localStorage.setItem(this.STORAGE_KEY, JSON.stringify(this.state)); this.render(); },
+
+            exportData() {
+                const dataStr = JSON.stringify(this.state);
+                const textArea = document.createElement("textarea");
+                textArea.value = dataStr;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                alert("資料已複製到剪貼簿！");
+                document.body.removeChild(textArea);
             },
 
             showPage(id) {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
+                window.scrollTo(0,0);
             },
 
             openModal(id, acc) {
@@ -235,22 +340,53 @@
                     document.getElementById('log-title').innerText = `${acc} 支出紀錄`;
                     this.renderChips();
                 }
+                if(id === 'modal-income') {
+                    const key = `${this.context.year}-${this.context.month}`;
+                    const d = this.state.monthly[key] || {};
+                    const s = d.salaryDetails || { base:0, bonus:0, deduct:0, other:0 };
+                    document.getElementById('in-inc-base').value = s.base;
+                    document.getElementById('in-inc-bonus').value = s.bonus;
+                    document.getElementById('in-inc-deduct').value = s.deduct;
+                    document.getElementById('in-inc-other').value = s.other;
+                    this.calcSalaryTotal();
+                }
                 document.getElementById(id).style.display = 'flex';
             },
 
             closeModal(id) { document.getElementById(id).style.display = 'none'; },
 
+            calcSalaryTotal() {
+                const b = parseFloat(document.getElementById('in-inc-base').value) || 0;
+                const bo = parseFloat(document.getElementById('in-inc-bonus').value) || 0;
+                const d = parseFloat(document.getElementById('in-inc-deduct').value) || 0;
+                const o = parseFloat(document.getElementById('in-inc-other').value) || 0;
+                const total = b + bo - d + o;
+                document.getElementById('salary-total-preview').innerText = `$ ${total.toLocaleString()}`;
+                return total;
+            },
+
+            saveIncome() {
+                const total = this.calcSalaryTotal();
+                const key = `${this.context.year}-${this.context.month}`;
+                if(!this.state.monthly[key]) this.state.monthly[key] = {income:0, plans:[], logs:[], reflection:""};
+                this.state.monthly[key].income = total;
+                this.state.monthly[key].salaryDetails = {
+                    base: parseFloat(document.getElementById('in-inc-base').value) || 0,
+                    bonus: parseFloat(document.getElementById('in-inc-bonus').value) || 0,
+                    deduct: parseFloat(document.getElementById('in-inc-deduct').value) || 0,
+                    other: parseFloat(document.getElementById('in-inc-other').value) || 0
+                };
+                this.save(); this.closeModal('modal-income');
+            },
+
             render() {
-                // 年度清單
                 document.getElementById('year-list').innerHTML = this.state.years.map(y => `<div class="card" onclick="app.enterYear('${y}')"><strong>${y} 年度手帳</strong></div>`).join('');
                 document.getElementById('asset-list').innerHTML = this.state.accounts.map(a => `<div class="card" style="display:flex; justify-content:space-between"><span>${a.name}</span><strong>$${a.bal.toLocaleString()}</strong></div>`).join('');
 
-                // 月份網格
                 document.getElementById('disp-year').innerText = this.context.year;
                 const ms = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
                 document.getElementById('month-grid').innerHTML = ms.map(m => `<div class="card" style="text-align:center" onclick="app.enterMonth('${m}')"><strong>${m}</strong></div>`).join('');
 
-                // 詳情看板
                 const key = `${this.context.year}-${this.context.month}`;
                 const d = this.state.monthly[key] || { income: 0, plans: [], logs: [], reflection: "" };
                 document.getElementById('disp-month').innerText = `${this.context.year} · ${this.context.month}`;
@@ -272,25 +408,16 @@
 
                 document.getElementById('log-list').innerHTML = (d.logs || []).map((l, i) => `<div class="card" style="padding:15px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between;"><div><strong>${l.cate}</strong> <small style="color:#aaa">${l.note||''}</small></div><div style="color:var(--red); font-weight:700;">-$${l.amt.toLocaleString()}</div></div><div style="font-size:10px; color:#ddd; margin-top:5px;">${l.acc} · ${l.date} <span onclick="app.undoLog(${i})" style="margin-left:10px;">撤銷</span></div></div>`).reverse().join('');
 
-                document.getElementById('acc-list').innerHTML = this.state.accounts.map((a, i) => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;"><span>${a.name} ($${a.bal})</span><span onclick="app.delAcc(${i})" style="color:var(--red)">✕ 刪除</span></div>`).join('');
+                document.getElementById('acc-list').innerHTML = this.state.accounts.map((a, i) => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;"><span>${a.name} ($${a.bal.toLocaleString()})</span><span onclick="app.delAcc(${i})" style="color:var(--red)">✕ 刪除</span></div>`).join('');
             },
 
             renderChips() {
                 document.getElementById('log-chips').innerHTML = this.state.categories.map(c => `<div class="chip ${this.context.category === c ? 'active' : ''}" onclick="app.selectCate('${c}')">${c}</div>`).join('');
             },
             selectCate(c) { this.context.category = c; this.renderChips(); },
-
             enterYear(y) { this.context.year = y; this.showPage('page-months'); this.render(); },
             enterMonth(m) { this.context.month = m; this.showPage('page-detail'); this.render(); },
-            
             addYear() { const y = prompt("年度?"); if(y) { this.state.years.unshift(y); this.save(); } },
-            saveIncome() { 
-                const amt = parseFloat(document.getElementById('in-inc').value) || 0;
-                const key = `${this.context.year}-${this.context.month}`;
-                if(!this.state.monthly[key]) this.state.monthly[key] = {income:0, plans:[], logs:[], reflection:""};
-                this.state.monthly[key].income = amt;
-                this.save(); this.closeModal('modal-income');
-            },
             savePlan() {
                 const n = document.getElementById('in-p-name').value;
                 const a = parseFloat(document.getElementById('in-p-amt').value) || 0;
@@ -328,7 +455,7 @@
                 const b = parseFloat(document.getElementById('in-a-bal').value) || 0;
                 if(n) { this.state.accounts.push({name:n, bal:b}); this.save(); document.getElementById('in-a-name').value=""; }
             },
-            delAcc(i) { this.state.accounts.splice(i,1); this.save(); },
+            delAcc(i) { if(confirm("確定刪除此帳戶？")) { this.state.accounts.splice(i,1); this.save(); } },
             saveReflection(v) {
                 const key = `${this.context.year}-${this.context.month}`;
                 if(!this.state.monthly[key]) this.state.monthly[key] = {income:0, plans:[], logs:[], reflection:""};
