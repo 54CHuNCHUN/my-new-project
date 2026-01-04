@@ -5,482 +5,86 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chun 財務手帳</title>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@200;400;500;700&display=swap');
         :root {
             --bg: #fdfaf5;
             --primary: #8c7662;
             --text: #37352f;
             --sub: #9b9a97;
             --card-bg: #ffffff;
-            --red: #eb5757;
-            --green: #2d6a4f;
-            --hl-saving: #d8e2dc;
-            --hl-fixed: #f1d5d5;
         }
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
 
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
+        /* 開場動畫 */
+        #splash {
+            position: fixed; inset: 0; background: var(--bg); z-index: 10000;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+        }
+        .splash-logo { font-size: 32px; font-weight: 200; color: var(--primary); letter-spacing: 12px; animation: pulse 2s infinite; }
+        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
 
-        /* 頁面切換動畫 */
         .page { padding: 20px 24px 140px; max-width: 500px; margin: 0 auto; display: none; }
-        .page.active { display: block; animation: fadeIn 0.3s ease-out forwards; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .page.active { display: block; animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .brand { font-size: 28px; font-weight: 200; color: var(--primary); letter-spacing: 8px; text-align: center; margin: 40px 0 10px; }
-        .quote { font-size: 11px; color: var(--sub); text-align: center; margin-bottom: 30px; font-style: italic; }
+        .brand { font-size: 26px; font-weight: 200; color: var(--primary); letter-spacing: 6px; text-align: center; margin: 30px 0 5px; }
+        .quote { font-size: 10px; color: var(--sub); text-align: center; margin-bottom: 25px; font-style: italic; }
 
-        /* 儀表板樣式 */
-        .dashboard {
-            background: var(--primary); color: white; padding: 30px 24px;
-            border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;
-            margin-bottom: 25px; box-shadow: 0 10px 25px rgba(140,118,98,0.15);
-        }
-        .dash-main-val { font-size: 36px; font-weight: 200; text-align: center; margin: 10px 0 20px; }
-        .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; text-align: center; }
-        .dash-label { font-size: 9px; opacity: 0.7; margin-bottom: 4px; }
-        .dash-val { font-size: 12px; font-weight: 700; }
-
-        .section-title { font-size: 11px; font-weight: 800; color: var(--sub); text-transform: uppercase; letter-spacing: 2.5px; margin: 30px 0 15px 5px; display: flex; justify-content: space-between; align-items: center; }
+        .section-title { font-size: 10px; font-weight: 800; color: var(--sub); letter-spacing: 2px; margin: 25px 0 12px 5px; display: flex; justify-content: space-between; align-items: center; }
+        .card { background: var(--card-bg); border-radius: 20px; padding: 18px; margin-bottom: 12px; border: 1px solid rgba(140,118,98,0.05); }
         
-        .card { background: var(--card-bg); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(140,118,98,0.08); position: relative; }
-        .clickable:active { transform: scale(0.97); opacity: 0.9; }
-        
-        /* 標籤樣式 */
-        .tag { display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 10px; font-weight: 700; margin-right: 6px; }
-        .tag-fixed { background: var(--hl-fixed); color: #a4161a; }
-        .tag-saving { background: var(--hl-saving); color: #2d6a4f; }
-        .tag-income { background: #e8f5e9; color: #2e7d32; }
-        .tag-cate { background: #f0f0f0; color: #666; }
-        
-        .item-row { display: flex; justify-content: space-between; align-items: center; padding: 12px 0; border-bottom: 1px solid #fcfaf5; }
-        .item-row:last-child { border-bottom: none; }
-
-        input, select { border: none; outline: none; background: #f5f2ed; padding: 12px; border-radius: 12px; width: 100%; font-size: 15px; margin-bottom: 12px; font-family: inherit; color: var(--text); }
-        .btn-primary { background: var(--primary); color: white; border: none; padding: 14px; border-radius: 15px; width: 100%; font-weight: 700; cursor: pointer; margin-top: 5px; }
-        .btn-ghost { background: #eee; border: none; padding: 12px; border-radius: 15px; width: 100%; cursor: pointer; color: var(--sub); font-size: 13px; }
-
-        /* 子分類管理按鈕樣式 */
-        .cate-chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
-        .cate-item { display: flex; align-items: center; background: white; border: 1px solid #eee; border-radius: 50px; overflow: hidden; }
-        .cate-name { padding: 8px 12px 8px 16px; font-size: 13px; color: var(--text); cursor: pointer; }
-        .cate-del-btn { padding: 8px 12px; color: var(--red); font-weight: bold; cursor: pointer; border-left: 1px solid #eee; font-size: 12px; }
-        .cate-chip { padding: 8px 16px; background: #fff; border: 1px solid #eee; border-radius: 50px; font-size: 13px; cursor: pointer; }
-        .cate-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
-
-        /* 導覽列 */
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--sub); font-size: 10px; font-weight: 800; cursor: pointer; flex: 1; }
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--sub); font-size: 9px; font-weight: 800; flex: 1; }
         .nav-item.active { color: var(--primary); }
-
-        /* 彈窗 */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(4px); z-index: 1000; display: none; align-items: center; justify-content: center; padding: 20px; }
-        .modal-body { background: white; border-radius: 28px; width: 100%; max-width: 350px; padding: 25px; box-shadow: 0 20px 40px rgba(0,0,0,0.15); }
     </style>
 </head>
 <body>
+    <div id="splash"><div class="splash-logo">CHUN</div></div>
 
-    <!-- 頁面：首頁 (年度與分類) -->
-    <div id="view-years" class="page active">
+    <div id="view-years" class="page">
         <div class="brand">CHUN</div>
         <div class="quote">「生活的平衡，從財務的紀錄開始。」</div>
-        
-        <div class="section-title">年度帳本</div>
-        <div id="year-container"></div>
-
-        <div class="section-title">支出子分類管理 <span onclick="promptAddCategory()" style="color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold;">[ + 新增分類 ]</span></div>
-        <div class="card" style="padding:15px; background:rgba(140,118,98,0.03); border:none;">
-            <div id="category-manager-list" class="cate-chip-group"></div>
-        </div>
-
-        <div class="section-title">每月固定計畫 <span onclick="openModal('fixed-modal')" style="color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold;">[ + 新增項目 ]</span></div>
-        <div id="global-fixed-list"></div>
+        <div class="section-title">年度帳本 <span onclick="addYear()" style="color:var(--primary); cursor:pointer;">[ + 新增 ]</span></div>
+        <div id="year-list"></div>
     </div>
 
-    <!-- 頁面：月份列表 -->
-    <div id="view-months" class="page">
-        <div onclick="showPage('view-years')" style="cursor:pointer; color:var(--sub); font-size:12px; font-weight:700; margin-bottom:15px;">← 返回首頁</div>
-        <h2 id="month-year-title" style="font-size: 32px; font-weight: 200; margin: 0 0 20px;"></h2>
-        <div id="month-grid" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;"></div>
-    </div>
-
-    <!-- 頁面：月份詳細 -->
-    <div id="view-detail" class="page" style="padding-top:0;">
-        <div class="dashboard">
-            <div onclick="showPage('view-months')" style="color:rgba(255,255,255,0.6); font-size:12px; cursor:pointer;">← 返回月份</div>
-            <div style="font-size:10px; text-align:center; opacity:0.8; margin-top:10px;">剩餘可用生活費</div>
-            <div class="dash-main-val" id="dash-allowance">$ 0</div>
-            <div class="dash-grid">
-                <div><div class="dash-label">存款目標</div><div class="dash-val" id="dash-saving">$ 0</div></div>
-                <div><div class="dash-label">固定預算</div><div class="dash-val" id="dash-fixed">$ 0</div></div>
-                <div><div class="dash-label">已支生活費</div><div class="dash-val" id="dash-spent">$ 0</div></div>
-            </div>
-        </div>
-
-        <h2 id="detail-month-label" style="font-size: 26px; font-weight: 200; margin-bottom:20px;"></h2>
-
-        <div class="section-title">薪資實領設定</div>
-        <div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
-            <div onclick="openModal('salary-modal')" class="clickable" style="display:flex; align-items:center; gap:12px;">
-                <div style="background:#fdfaf5; width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center;">💰</div>
-                <div><span style="font-size:13px; font-weight:700; display:block;">薪資計算器</span><span style="font-size:10px; color:var(--sub);">點擊計算實領金額</span></div>
-            </div>
-            <input type="number" id="month-income-input" style="text-align:right; font-weight:700; color:var(--primary); font-size:18px; width:120px; background:none; margin:0;" placeholder="0">
-        </div>
-
-        <div class="section-title">快速記帳</div>
-        <div id="acc-quick-selector" style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;"></div>
-
-        <div class="section-title">帳戶收支明細</div>
-        <div id="acc-detail-list"></div>
-    </div>
-
-    <!-- 頁面：資產管理 -->
     <div id="view-assets" class="page">
-        <div class="brand" style="font-size:20px;">ASSETS</div>
-        <div class="section-title">帳戶結餘 <span onclick="openModal('add-acc-modal')" style="color:var(--primary); font-size:10px; cursor:pointer; font-weight:bold;">[ + 新增帳戶 ]</span></div>
-        <div id="asset-container"></div>
+        <div class="brand" style="font-size:18px;">ASSETS</div>
+        <div id="asset-list"></div>
     </div>
 
-    <!-- 底部導覽 -->
     <nav class="nav">
-        <div class="nav-item" id="nav-y" onclick="showPage('view-years')">🏠<br>首頁</div>
+        <div class="nav-item active" id="nav-y" onclick="showPage('view-years')">🏠<br>首頁</div>
         <div class="nav-item" id="nav-a" onclick="showPage('view-assets')">💳<br>資產</div>
     </nav>
 
-    <!-- 彈窗群 -->
-    <div id="log-modal" class="modal">
-        <div class="modal-body">
-            <h3 id="log-modal-title" style="margin:0 0 15px 0;"></h3>
-            <div style="display: flex; gap: 10px; margin-bottom: 15px;">
-                <button id="btn-type-out" class="btn-primary" style="margin:0; background:var(--red);" onclick="setLogType('支出')">支出</button>
-                <button id="btn-type-in" class="btn-ghost" style="margin:0;" onclick="setLogType('收入')">收入</button>
-            </div>
-            <div id="log-cate-section">
-                <div style="font-size:11px; color:var(--sub); margin-bottom:8px;">子分類：</div>
-                <div id="log-cate-selector" class="cate-chip-group" style="margin-bottom:15px;"></div>
-            </div>
-            <input type="number" id="l-amt" placeholder="請輸入金額">
-            <input type="text" id="l-note" placeholder="備註 (選填)">
-            <button class="btn-primary" onclick="saveLog()">確認儲存</button>
-            <button class="btn-ghost" style="margin-top:8px;" onclick="closeModal('log-modal')">取消</button>
-        </div>
-    </div>
-
-    <div id="fixed-modal" class="modal">
-        <div class="modal-body">
-            <h3 style="margin-bottom:20px;">新增固定計畫</h3>
-            <input type="text" id="f-name" placeholder="項目名稱 (如：房租、儲蓄)">
-            <input type="number" id="f-amt" placeholder="每月固定金額">
-            <select id="f-type">
-                <option value="固定">每月固定支出 (如房租、車貸)</option>
-                <option value="存款">每月存款目標 (如定存、基金)</option>
-            </select>
-            <select id="f-acc" class="acc-dropdown-inject"></select>
-            <button class="btn-primary" onclick="saveFixed()">加入計畫</button>
-            <button class="btn-ghost" style="margin-top:8px;" onclick="closeModal('fixed-modal')">取消</button>
-        </div>
-    </div>
-
-    <div id="salary-modal" class="modal">
-        <div class="modal-body">
-            <h3>薪資結算器</h3>
-            <input type="number" id="s-base" placeholder="本薪 (+)">
-            <input type="number" id="s-ins" placeholder="健保/勞退 (-)">
-            <input type="number" id="s-off" placeholder="扣款/請假 (-)">
-            <div id="s-res" style="background:#fdfaf5; padding:15px; border-radius:15px; text-align:center; margin-bottom:15px; font-weight:700; color:var(--primary); font-size:20px;">$ 0</div>
-            <button class="btn-primary" onclick="applySalary()">帶入本月實領</button>
-            <button class="btn-ghost" style="margin-top:8px;" onclick="closeModal('salary-modal')">取消</button>
-        </div>
-    </div>
-
-    <div id="add-acc-modal" class="modal">
-        <div class="modal-body">
-            <h3>新增資產帳戶</h3>
-            <input type="text" id="new-acc-name" placeholder="帳戶名稱 (如：中信、現金)">
-            <input type="number" id="new-acc-bal" placeholder="當前餘額">
-            <button class="btn-primary" onclick="saveNewAccount()">新增</button>
-            <button class="btn-ghost" style="margin-top:8px;" onclick="closeModal('add-acc-modal')">取消</button>
-        </div>
-    </div>
-
     <script>
-        const DB_KEY = 'chun_finance_final_stable_v1';
-        let state = JSON.parse(localStorage.getItem(DB_KEY)) || {
-            years: ["2025", "2024"],
-            accounts: ["中國信託", "國泰世華", "郵局"],
-            categories: ["午餐", "晚餐", "交通", "購物", "娛樂"],
-            balances: { "中國信託": 0, "國泰世華": 0, "郵局": 0 },
-            globalFixed: [],
-            monthlyData: {}
-        };
-
-        let curYear = "2025";
-        let curMonth = "一月";
-        let curLogType = "支出";
-        let activeAcc = "";
-        let activeCate = "午餐";
+        const KEY = 'chun_finance_v5';
+        let state = JSON.parse(localStorage.getItem(KEY)) || { years: ["2025"], accounts: ["現金"], balances: {"現金": 0} };
 
         window.onload = () => {
-            // 監聽薪資計算器
-            ['s-base', 's-ins', 's-off'].forEach(id => {
-                const el = document.getElementById(id);
-                if(el) {
-                    el.addEventListener('input', () => {
-                        const b = parseFloat(document.getElementById('s-base').value) || 0;
-                        const i = parseFloat(document.getElementById('s-ins').value) || 0;
-                        const o = parseFloat(document.getElementById('s-off').value) || 0;
-                        document.getElementById('s-res').innerText = `$ ${(b-i-o).toLocaleString()}`;
-                    });
-                }
-            });
-
-            // 監聽薪資欄位手動修改
-            document.getElementById('month-income-input').addEventListener('input', (e) => {
-                const key = `${curYear}-${curMonth}`;
-                if(!state.monthlyData[key]) state.monthlyData[key] = { income: 0, logs: [] };
-                state.monthlyData[key].income = parseFloat(e.target.value) || 0;
-                localStorage.setItem(DB_KEY, JSON.stringify(state));
-                updateDashboard();
-            });
-
+            setTimeout(() => {
+                document.getElementById('splash').style.opacity = '0';
+                setTimeout(() => document.getElementById('splash').style.display = 'none', 800);
+            }, 1500);
             render();
+            showPage('view-years');
         };
 
-        function save() {
-            localStorage.setItem(DB_KEY, JSON.stringify(state));
-            render();
-        }
-
-        function showPage(id) {
+        function save() { localStorage.setItem(KEY, JSON.stringify(state)); render(); }
+        function showPage(id) { 
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-            if(id === 'view-years' || id === 'view-months') document.getElementById('nav-y').classList.add('active');
-            if(id === 'view-assets') document.getElementById('nav-a').classList.add('active');
-            render();
+            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
+            if(id === 'view-years') document.getElementById('nav-y').classList.add('active');
+            else if(id === 'view-assets') document.getElementById('nav-a').classList.add('active');
         }
-
-        function openModal(id) { document.getElementById(id).style.display = 'flex'; }
-        function closeModal(id) { document.getElementById(id).style.display = 'none'; }
-
-        /* --- 分類管理邏輯 --- */
-        function promptAddCategory() {
-            const name = prompt("請輸入新分類名稱：");
-            if (name && name.trim()) {
-                if (!state.categories.includes(name.trim())) {
-                    state.categories.push(name.trim());
-                    save();
-                }
-            }
-        }
-
-        function editCategory(oldName) {
-            const newName = prompt("修改分類名稱：", oldName);
-            if (newName && newName.trim() && newName !== oldName) {
-                const idx = state.categories.indexOf(oldName);
-                if (idx > -1) {
-                    state.categories[idx] = newName.trim();
-                    save();
-                }
-            }
-        }
-
-        function deleteCategory(name) {
-            if (confirm(`確定要刪除「${name}」分類嗎？`)) {
-                state.categories = state.categories.filter(c => c !== name);
-                save();
-            }
-        }
-
-        /* --- 記帳邏輯 --- */
-        function setLogType(type) {
-            curLogType = type;
-            const btnOut = document.getElementById('btn-type-out');
-            const btnIn = document.getElementById('btn-type-in');
-            if (type === '支出') {
-                btnOut.className = 'btn-primary'; btnOut.style.background = 'var(--red)';
-                btnIn.className = 'btn-ghost';
-                document.getElementById('log-cate-section').style.display = 'block';
-            } else {
-                btnIn.className = 'btn-primary'; btnIn.style.background = 'var(--green)';
-                btnOut.className = 'btn-ghost';
-                document.getElementById('log-cate-section').style.display = 'none';
-            }
-            renderLogCates();
-        }
-
-        function renderLogCates() {
-            const container = document.getElementById('log-cate-selector');
-            container.innerHTML = state.categories.map(c => `
-                <div class="cate-chip ${activeCate === c ? 'active' : ''}" onclick="activeCate='${c}'; renderLogCates();">${c}</div>
-            `).join('');
-        }
-
-        function openLogFor(acc) {
-            activeAcc = acc;
-            activeCate = state.categories[0] || "";
-            document.getElementById('log-modal-title').innerText = `${acc} 記帳`;
-            setLogType('支出');
-            openModal('log-modal');
-        }
-
-        function saveLog() {
-            const amt = parseFloat(document.getElementById('l-amt').value);
-            const note = document.getElementById('l-note').value;
-            if(isNaN(amt)) return;
-
-            const key = `${curYear}-${curMonth}`;
-            if(!state.monthlyData[key]) state.monthlyData[key] = { income: 0, logs: [] };
-
-            state.monthlyData[key].logs.push({
-                acc: activeAcc,
-                type: curLogType,
-                amt: amt,
-                cate: curLogType === '支出' ? activeCate : '存入',
-                note: note || (curLogType === '支出' ? activeCate : '薪資存入')
-            });
-
-            state.balances[activeAcc] += (curLogType === '支出' ? -amt : amt);
-            document.getElementById('l-amt').value = "";
-            document.getElementById('l-note').value = "";
-            closeModal('log-modal');
-            save();
-        }
-
-        function saveFixed() {
-            const n = document.getElementById('f-name').value;
-            const a = parseFloat(document.getElementById('f-amt').value);
-            const acc = document.getElementById('f-acc').value;
-            const type = document.getElementById('f-type').value;
-            if(!n || isNaN(a)) return;
-            state.globalFixed.push({ name: n, amt: a, type: type, acc: acc });
-            closeModal('fixed-modal');
-            save();
-        }
-
-        function saveNewAccount() {
-            const n = document.getElementById('new-acc-name').value;
-            const b = parseFloat(document.getElementById('new-acc-bal').value) || 0;
-            if(!n) return;
-            if(!state.accounts.includes(n)) state.accounts.push(n);
-            state.balances[n] = b;
-            closeModal('add-acc-modal');
-            save();
-        }
-
-        function applySalary() {
-            const b = parseFloat(document.getElementById('s-base').value) || 0;
-            const i = parseFloat(document.getElementById('s-ins').value) || 0;
-            const o = parseFloat(document.getElementById('s-off').value) || 0;
-            const res = b - i - o;
-            const key = `${curYear}-${curMonth}`;
-            if(!state.monthlyData[key]) state.monthlyData[key] = { income: 0, logs: [] };
-            state.monthlyData[key].income = res;
-            closeModal('salary-modal');
-            save();
-        }
-
-        function updateDashboard() {
-            const mk = `${curYear}-${curMonth}`;
-            const md = state.monthlyData[mk] || { income: 0, logs: [] };
-            const savingT = state.globalFixed.filter(f => f.type === '存款').reduce((s,f)=>s+f.amt,0);
-            const fixedT = state.globalFixed.filter(f => f.type !== '存款').reduce((s,f)=>s+f.amt,0);
-            const spentT = md.logs.filter(l => l.type === '支出').reduce((s,l)=>s+l.amt, 0);
-            const allowance = (md.income || 0) - savingT - fixedT - spentT;
-
-            document.getElementById('dash-allowance').innerText = `$ ${allowance.toLocaleString()}`;
-            document.getElementById('dash-saving').innerText = `$ ${savingT.toLocaleString()}`;
-            document.getElementById('dash-fixed').innerText = `$ ${fixedT.toLocaleString()}`;
-            document.getElementById('dash-spent').innerText = `$ ${spentT.toLocaleString()}`;
-        }
-
+        function addYear() { let y = prompt("輸入年份"); if(y) { state.years.unshift(y); save(); } }
         function render() {
-            // 年度
-            document.getElementById('year-container').innerHTML = state.years.map(y => `
-                <div class="card clickable" style="padding:15px;" onclick="curYear='${y}'; showPage('view-months')">
-                    <div style="font-size:9px; color:var(--sub); font-weight:800;">ANNUAL</div>
-                    <div style="font-size:22px; font-weight:300; margin-top:5px;">${y} 年度帳本</div>
-                </div>
-            `).join('');
-
-            // 子分類管理
-            document.getElementById('category-manager-list').innerHTML = state.categories.map(c => `
-                <div class="cate-item">
-                    <div class="cate-name" onclick="editCategory('${c}')">${c}</div>
-                    <div class="cate-del-btn" onclick="deleteCategory('${c}')">✕</div>
-                </div>
-            `).join('');
-
-            // 固定計畫
-            document.getElementById('global-fixed-list').innerHTML = state.globalFixed.map((f, i) => `
-                <div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                        <span class="tag ${f.type==='存款'?'tag-saving':'tag-fixed'}">${f.type}</span>
-                        <b style="font-size:14px;">${f.name}</b>
-                        <div style="font-size:10px; color:var(--sub); margin-top:2px;">扣款：${f.acc}</div>
-                    </div>
-                    <div style="text-align:right">
-                        <div style="font-weight:700; color:var(--red)">-$${f.amt.toLocaleString()}</div>
-                        <div onclick="state.globalFixed.splice(${i},1); save();" style="font-size:9px; color:#ccc; cursor:pointer; margin-top:5px;">移除</div>
-                    </div>
-                </div>
-            `).join('') || '<div style="text-align:center; color:#ccc; font-size:12px; padding:20px;">尚無固定項目</div>';
-
-            // 月份
-            document.getElementById('month-year-title').innerText = curYear;
-            const ms = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
-            document.getElementById('month-grid').innerHTML = ms.map(m => `
-                <div class="card clickable" style="padding:15px; text-align:center; margin:0; border-radius:18px;" onclick="curMonth='${m}'; showPage('view-detail')">${m}</div>
-            `).join('');
-
-            // 詳細內容
-            const mk = `${curYear}-${curMonth}`;
-            const md = state.monthlyData[mk] || { income: 0, logs: [] };
-            document.getElementById('detail-month-label').innerText = `${curYear} ${curMonth}`;
-            document.getElementById('month-income-input').value = md.income || "";
-            updateDashboard();
-
-            // 記帳按鈕
-            document.getElementById('acc-quick-selector').innerHTML = state.accounts.map(acc => `
-                <div class="card clickable" style="padding:15px; margin:0; text-align:center;" onclick="openLogFor('${acc}')">
-                    <div style="font-size:11px; color:var(--sub); font-weight:700;">${acc}</div>
-                    <div style="font-size:13px; color:var(--primary); font-weight:500; margin-top:4px;">+ 記帳</div>
-                </div>
-            `).join('');
-
-            // 明細
-            document.getElementById('acc-detail-list').innerHTML = state.accounts.map(acc => {
-                const logs = md.logs.filter(l => l.acc === acc);
-                const fixed = state.globalFixed.filter(f => f.acc === acc);
-                if(logs.length === 0 && fixed.length === 0) return '';
-                
-                return `
-                    <div class="card" style="padding:15px;">
-                        <div style="font-size:11px; font-weight:800; color:var(--primary); margin-bottom:10px; border-bottom:1px solid #fcfaf5; padding-bottom:5px;">${acc} 明細</div>
-                        ${fixed.map(f => `<div class="item-row"><span><span class="tag tag-fixed">${f.type}</span>${f.name}</span><span style="color:var(--red)">-$${f.amt.toLocaleString()}</span></div>`).join('')}
-                        ${logs.map((l) => `
-                            <div class="item-row">
-                                <span><span class="tag ${l.type==='收入'?'tag-income':'tag-cate'}">${l.cate}</span>${l.note}</span>
-                                <span style="color:${l.type==='收入'? 'var(--green)':'var(--text)'}">${l.type==='收入'?'+':'-'}$${l.amt.toLocaleString()}</span>
-                            </div>
-                        `).join('')}
-                    </div>
-                `;
-            }).join('') || '<div style="text-align:center; color:#ccc; padding:40px; font-size:12px;">本月無任何紀錄</div>';
-
-            // 資產
-            document.getElementById('asset-container').innerHTML = state.accounts.map(a => `
-                <div class="card" style="display:flex; justify-content:space-between; align-items:center;">
-                    <div><div style="font-size:10px; color:var(--sub);">${a}</div><div style="font-size:24px; font-weight:700; color:var(--primary);">$ ${state.balances[a].toLocaleString()}</div></div>
-                    <div onclick="if(confirm('刪除帳戶？')){state.accounts=state.accounts.filter(x=>x!=='${a}'); save();}" style="font-size:9px; color:#ddd; cursor:pointer;">刪除</div>
-                </div>
-            `).join('');
-
-            // 更新下拉選單
-            document.querySelectorAll('.acc-dropdown-inject').forEach(el => {
-                el.innerHTML = state.accounts.map(a => `<option value="${a}">${a}</option>`).join('');
-            });
+            document.getElementById('year-list').innerHTML = state.years.map(y => `<div class="card">${y} 年度帳本</div>`).join('');
+            document.getElementById('asset-list').innerHTML = state.accounts.map(a => `<div class="card">${a}: $${state.balances[a]}</div>`).join('');
         }
     </script>
 </body>
