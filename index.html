@@ -4,88 +4,370 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chun 財務手帳</title>
+    
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%238c7662'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='40' font-weight='100' fill='white' letter-spacing='5'%3ECHUN%3C/text%3E%3C/svg%3E">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="theme-color" content="#8c7662">
+
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@200;400;500;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@100;400;500;700&display=swap');
+        
         :root {
             --bg: #fdfaf5;
             --primary: #8c7662;
             --text: #37352f;
             --sub: #9b9a97;
-            --card-bg: #ffffff;
+            --card: #ffffff;
+            --red: #eb5757;
+            --border: rgba(140, 118, 98, 0.1);
         }
-        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; }
-        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; }
 
-        /* 開場動畫 */
+        * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Noto Sans TC', sans-serif; background-color: var(--bg); color: var(--text); margin: 0; padding: 0; line-height: 1.6; overflow-x: hidden; }
+
+        /* Splash Screen (開場畫面) */
         #splash {
-            position: fixed; inset: 0; background: var(--bg); z-index: 10000;
+            position: fixed; inset: 0; background: var(--bg); z-index: 99999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            transition: opacity 0.8s ease;
+            opacity: 1; transition: opacity 0.5s ease;
         }
-        .splash-logo { font-size: 32px; font-weight: 200; color: var(--primary); letter-spacing: 12px; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%, 100% { opacity: 0.4; } 50% { opacity: 1; } }
+        .splash-logo { font-size: 42px; font-weight: 100; color: var(--primary); letter-spacing: 15px; margin-bottom: 20px; }
+        #splash-quote { font-size: 14px; color: var(--sub); text-align: center; padding: 0 40px; line-height: 1.8; }
+
+        /* App Layout */
+        #app-content { opacity: 0; transition: opacity 0.5s ease; }
+        #app-content.loaded { opacity: 1; }
 
         .page { padding: 20px 24px 140px; max-width: 500px; margin: 0 auto; display: none; }
-        .page.active { display: block; animation: fadeIn 0.4s ease; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .page.active { display: block; }
 
-        .brand { font-size: 26px; font-weight: 200; color: var(--primary); letter-spacing: 6px; text-align: center; margin: 30px 0 5px; }
-        .quote { font-size: 10px; color: var(--sub); text-align: center; margin-bottom: 25px; font-style: italic; }
-
-        .section-title { font-size: 10px; font-weight: 800; color: var(--sub); letter-spacing: 2px; margin: 25px 0 12px 5px; display: flex; justify-content: space-between; align-items: center; }
-        .card { background: var(--card-bg); border-radius: 20px; padding: 18px; margin-bottom: 12px; border: 1px solid rgba(140,118,98,0.05); }
+        .brand { font-size: 32px; font-weight: 100; color: var(--primary); letter-spacing: 10px; text-align: center; margin: 50px 0 20px; }
         
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 75px; background: white; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        .nav-item { display: flex; flex-direction: column; align-items: center; color: var(--sub); font-size: 9px; font-weight: 800; flex: 1; }
-        .nav-item.active { color: var(--primary); }
+        .dashboard {
+            background: var(--primary); color: white; border-radius: 30px; padding: 30px 24px;
+            margin-bottom: 25px; box-shadow: 0 10px 20px rgba(140, 118, 98, 0.2);
+        }
+        .dash-label { font-size: 11px; opacity: 0.7; text-align: center; }
+        .dash-value { font-size: 40px; font-weight: 100; text-align: center; margin: 10px 0 20px; }
+        .dash-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; border-top: 1px solid rgba(255,255,255,0.2); padding-top: 15px; }
+        .grid-item { text-align: center; }
+        .grid-v { font-size: 13px; font-weight: 700; }
+        .grid-l { font-size: 9px; opacity: 0.6; }
+
+        .section-title { font-size: 12px; font-weight: 700; color: var(--sub); letter-spacing: 2px; margin: 30px 0 15px 5px; display: flex; justify-content: space-between; align-items: center; }
+        
+        .card { background: var(--card); border-radius: 20px; padding: 20px; margin-bottom: 12px; border: 1px solid var(--border); cursor: pointer; transition: transform 0.1s; }
+        .card:active { transform: scale(0.97); background: #f9f9f9; }
+
+        /* Chips */
+        .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
+        .chip { padding: 8px 16px; background: #eee; border-radius: 50px; font-size: 13px; display: flex; align-items: center; cursor: pointer; }
+        .chip.active { background: var(--primary); color: white; }
+        .chip-del { margin-left: 6px; font-weight: bold; color: var(--red); padding: 2px 6px; }
+
+        /* Form */
+        input, select, textarea { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid #eee; font-size: 16px; margin-bottom: 12px; font-family: inherit; outline: none; }
+        .btn { width: 100%; padding: 18px; border-radius: 18px; border: none; background: var(--primary); color: white; font-weight: 700; font-size: 16px; cursor: pointer; }
+        .btn-sub { background: #eee; color: #999; margin-top: 10px; }
+
+        /* Nav */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 85px; background: #fff; border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .nav-item { flex: 1; text-align: center; color: var(--sub); font-size: 11px; cursor: pointer; }
+        .nav-item.active { color: var(--primary); font-weight: bold; }
+
+        /* Modal */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.5); backdrop-filter: blur(4px); z-index: 2000; display: none; align-items: flex-end; }
+        .modal-content { background: white; border-radius: 30px 30px 0 0; width: 100%; padding: 30px 24px; max-height: 85vh; overflow-y: auto; }
+
+        .tag { font-size: 9px; padding: 2px 6px; border-radius: 4px; margin-right: 4px; }
+        .t-fixed { background: #ffebee; color: #c62828; }
+        .t-save { background: #e8f5e9; color: #2e7d32; }
     </style>
 </head>
 <body>
-    <div id="splash"><div class="splash-logo">CHUN</div></div>
 
-    <div id="view-years" class="page">
-        <div class="brand">CHUN</div>
-        <div class="quote">「生活的平衡，從財務的紀錄開始。」</div>
-        <div class="section-title">年度帳本 <span onclick="addYear()" style="color:var(--primary); cursor:pointer;">[ + 新增 ]</span></div>
-        <div id="year-list"></div>
+    <div id="splash">
+        <div class="splash-logo">CHUN</div>
+        <div id="splash-quote">「紀錄，是為了看見生活的樣貌。」</div>
     </div>
 
-    <div id="view-assets" class="page">
-        <div class="brand" style="font-size:18px;">ASSETS</div>
-        <div id="asset-list"></div>
+    <div id="app-content">
+        <!-- 頁面：首頁 -->
+        <div id="view-home" class="page active">
+            <div class="brand">CHUN</div>
+            <div class="section-title">年度帳本 <span onclick="addYear()">[+] 新增</span></div>
+            <div id="year-list"></div>
+            <div class="section-title">帳戶資產 <span onclick="openModal('modal-acc')">[設定]</span></div>
+            <div id="asset-list"></div>
+        </div>
+
+        <!-- 頁面：月份列表 -->
+        <div id="view-months" class="page">
+            <div onclick="showPage('view-home')" style="color:var(--sub); margin-bottom:20px;">← 返回年度</div>
+            <h2 id="disp-year" style="font-weight: 100; font-size: 32px; margin-bottom: 20px;"></h2>
+            <div id="month-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;"></div>
+        </div>
+
+        <!-- 頁面：詳細 -->
+        <div id="view-detail" class="page" style="padding-top:0">
+            <div class="dashboard">
+                <div onclick="showPage('view-months')" style="opacity:0.6; font-size:12px; margin-bottom:15px;">← 返回月份</div>
+                <div class="dash-label">本月可用餘額</div>
+                <div class="dash-value" id="val-remain">$ 0</div>
+                <div class="dash-grid">
+                    <div class="grid-item"><div class="grid-l">存款目標</div><div class="grid-v" id="val-save">$ 0</div></div>
+                    <div class="grid-item"><div class="grid-l">固定計畫</div><div class="grid-v" id="val-fixed">$ 0</div></div>
+                    <div class="grid-item"><div class="grid-l">累計支出</div><div class="grid-v" id="val-spent">$ 0</div></div>
+                </div>
+            </div>
+
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <h2 id="disp-month" style="font-weight:100; margin:0;"></h2>
+                <div onclick="openModal('modal-salary')" style="font-size:12px; border:1px solid #eee; padding:6px 12px; border-radius:10px; background:#fff;">薪資設定</div>
+            </div>
+
+            <div class="section-title">日常省思</div>
+            <textarea id="reflection-input" placeholder="今天的心情是..." onblur="updateReflection(this.value)"></textarea>
+
+            <div class="section-title">快速記帳</div>
+            <div id="quick-acc-btns" style="display:grid; grid-template-columns:1fr 1fr; gap:12px;"></div>
+
+            <div class="section-title">計畫支出 <span onclick="openModal('modal-plan')">[+]</span></div>
+            <div id="plan-list"></div>
+
+            <div class="section-title">明細紀錄</div>
+            <div id="log-list"></div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-item active" onclick="showPage('view-home')">首頁</div>
+            <div class="nav-item" onclick="openModal('modal-acc')">帳戶</div>
+        </nav>
     </div>
 
-    <nav class="nav">
-        <div class="nav-item active" id="nav-y" onclick="showPage('view-years')">🏠<br>首頁</div>
-        <div class="nav-item" id="nav-a" onclick="showPage('view-assets')">💳<br>資產</div>
-    </nav>
+    <!-- 彈窗集合 -->
+    <div id="modal-salary" class="modal"><div class="modal-content">
+        <h3>薪資計算</h3>
+        <input type="number" id="in-base" placeholder="本薪 (+)">
+        <input type="number" id="in-deduct" placeholder="扣項 (-)">
+        <button class="btn" onclick="saveSalary()">確認</button>
+        <button class="btn btn-sub" onclick="closeModal('modal-salary')">關閉</button>
+    </div></div>
 
-    <script>
-        const KEY = 'chun_finance_v5';
-        let state = JSON.parse(localStorage.getItem(KEY)) || { years: ["2025"], accounts: ["現金"], balances: {"現金": 0} };
+    <div id="modal-plan" class="modal"><div class="modal-content">
+        <h3>新增月計畫</h3>
+        <input type="text" id="in-p-name" placeholder="項目名稱">
+        <input type="number" id="in-p-amt" placeholder="金額">
+        <select id="in-p-type"><option value="固定">固定支出</option><option value="存款">存款目標</option></select>
+        <button class="btn" onclick="savePlan()">新增</button>
+        <button class="btn btn-sub" onclick="closeModal('modal-plan')">關閉</button>
+    </div></div>
 
-        window.onload = () => {
-            setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                setTimeout(() => document.getElementById('splash').style.display = 'none', 800);
-            }, 1500);
-            render();
-            showPage('view-years');
+    <div id="modal-log" class="modal"><div class="modal-content">
+        <h3 id="log-title">支出記帳</h3>
+        <div id="chip-container" class="chip-group"></div>
+        <input type="text" id="in-l-newcate" placeholder="+ 自定義分類">
+        <input type="number" id="in-l-amt" placeholder="支出金額" inputmode="decimal">
+        <input type="text" id="in-l-note" placeholder="備註">
+        <button class="btn" onclick="saveLog()">儲存</button>
+        <button class="btn btn-sub" onclick="closeModal('modal-log')">取消</button>
+    </div></div>
+
+    <div id="modal-acc" class="modal"><div class="modal-content">
+        <h3>帳戶管理</h3>
+        <div id="acc-edit-list"></div>
+        <div style="margin-top:20px; border-top:1px solid #eee; padding-top:20px;">
+            <input type="text" id="in-a-name" placeholder="新帳戶名稱">
+            <input type="number" id="in-a-bal" placeholder="初始餘額">
+            <button class="btn" onclick="saveAcc()">新增帳戶</button>
+        </div>
+        <button class="btn btn-sub" onclick="closeModal('modal-acc')">關閉</button>
+    </div></div>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
+        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+
+        const firebaseConfig = JSON.parse(__firebase_config);
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
+        const auth = getAuth(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'chun-finance-v5';
+
+        const QUOTES = ["「紀錄，是為了看見生活的樣貌。」", "「今天的自律，是為了明天的自由。」", "「每一筆支出，都在為你想要的未來投票。」", "「掌握金錢，而不是被金錢掌握。」"];
+
+        let state = {
+            years: ["2025"],
+            accounts: [{name: "現金", bal: 0}, {name: "中信", bal: 0}, {name: "台新", bal: 0}, {name: "國泰", bal: 0}],
+            categories: ["食", "衣", "住", "行", "育", "樂"],
+            monthly: {}
         };
 
-        function save() { localStorage.setItem(KEY, JSON.stringify(state)); render(); }
-        function showPage(id) { 
+        let user = null, curY = "2025", curM = "一月", curAcc = "", activeCate = "食";
+
+        // --- 全局函數 ---
+        window.showPage = (id) => {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(id).classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(nav => nav.classList.remove('active'));
-            if(id === 'view-years') document.getElementById('nav-y').classList.add('active');
-            else if(id === 'view-assets') document.getElementById('nav-a').classList.add('active');
-        }
-        function addYear() { let y = prompt("輸入年份"); if(y) { state.years.unshift(y); save(); } }
-        function render() {
-            document.getElementById('year-list').innerHTML = state.years.map(y => `<div class="card">${y} 年度帳本</div>`).join('');
-            document.getElementById('asset-list').innerHTML = state.accounts.map(a => `<div class="card">${a}: $${state.balances[a]}</div>`).join('');
-        }
+            window.scrollTo(0,0);
+        };
+
+        window.openModal = (id, accName) => {
+            if(accName) {
+                curAcc = accName;
+                activeCate = state.categories[0];
+                document.getElementById('log-title').innerText = `${accName} 支出`;
+                renderChips();
+            }
+            document.getElementById(id).style.display = 'flex';
+        };
+
+        window.closeModal = (id) => document.getElementById(id).style.display = 'none';
+
+        const renderChips = () => {
+            const container = document.getElementById('chip-container');
+            container.innerHTML = state.categories.map(c => `
+                <div class="chip ${activeCate === c ? 'active' : ''}" onclick="window.setCate('${c}')">
+                    ${c} <span class="chip-del" onclick="event.stopPropagation(); window.delCate('${c}')">✕</span>
+                </div>
+            `).join('');
+        };
+
+        window.setCate = (c) => { activeCate = c; renderChips(); };
+        window.delCate = (c) => { state.categories = state.categories.filter(x => x !== c); save(); renderChips(); };
+
+        const save = async () => {
+            if (user) await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'state'), state);
+        };
+
+        const render = () => {
+            // 首頁
+            document.getElementById('year-list').innerHTML = state.years.map(y => `<div class="card" onclick="window.enterYear('${y}')"><strong>${y} 年度</strong></div>`).join('');
+            document.getElementById('asset-list').innerHTML = state.accounts.map(a => `<div class="card" style="display:flex; justify-content:space-between"><span>${a.name}</span><strong>$ ${a.bal.toLocaleString()}</strong></div>`).join('');
+            
+            // 月份
+            document.getElementById('disp-year').innerText = curY;
+            const ms = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+            document.getElementById('month-grid').innerHTML = ms.map(m => `<div class="card" style="text-align:center" onclick="window.enterMonth('${m}')"><strong>${m}</strong></div>`).join('');
+
+            // 詳細
+            const key = `${curY}-${curM}`;
+            const d = state.monthly[key] || { income: 0, fixed: [], logs: [], reflection: "" };
+            document.getElementById('disp-month').innerText = `${curY} ${curM}`;
+            document.getElementById('reflection-input').value = d.reflection || "";
+
+            const fT = (d.fixed || []).filter(x => x.type === '固定').reduce((s, x) => s + x.amt, 0);
+            const sT = (d.fixed || []).filter(x => x.type === '存款').reduce((s, x) => s + x.amt, 0);
+            const sp = (d.logs || []).reduce((s, x) => s + x.amt, 0);
+            const rm = (d.income || 0) - fT - sT - sp;
+
+            document.getElementById('val-remain').innerText = `$ ${rm.toLocaleString()}`;
+            document.getElementById('val-save').innerText = `$ ${sT.toLocaleString()}`;
+            document.getElementById('val-fixed').innerText = `$ ${fT.toLocaleString()}`;
+            document.getElementById('val-spent').innerText = `$ ${sp.toLocaleString()}`;
+
+            document.getElementById('quick-acc-btns').innerHTML = state.accounts.map(a => `<div class="card" style="text-align:center; padding:15px; margin:0;" onclick="openModal('modal-log', '${a.name}')"><div style="font-size:10px; opacity:0.6">${a.name}</div><strong>支出 +</strong></div>`).join('');
+            
+            document.getElementById('plan-list').innerHTML = (d.fixed || []).map((p, i) => `<div class="card" style="display:flex; justify-content:space-between"><span><span class="tag ${p.type==='固定'?'t-fixed':'t-save'}">${p.type}</span>${p.name}</span><span>$${p.amt} <span onclick="window.delPlan(${i})" style="color:#ccc; margin-left:8px;">✕</span></span></div>`).join('');
+            
+            document.getElementById('log-list').innerHTML = (d.logs || []).map((l, i) => `
+                <div class="card">
+                    <div style="display:flex; justify-content:space-between">
+                        <div><strong>${l.cate}</strong> <small style="color:#999">${l.note||''}</small></div>
+                        <div style="color:var(--red); font-weight:bold;">-$${l.amt}</div>
+                    </div>
+                    <div style="font-size:10px; color:#ccc; display:flex; justify-content:space-between; margin-top:5px;">
+                        <span>${l.acc} · ${l.date}</span>
+                        <span onclick="window.undoLog(${i})">撤銷</span>
+                    </div>
+                </div>
+            `).reverse().join('');
+
+            document.getElementById('acc-edit-list').innerHTML = state.accounts.map((a, i) => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;"><span>${a.name}</span><span onclick="window.delAcc(${i})" style="color:var(--red)">✕ 刪除</span></div>`).join('');
+        };
+
+        // 事件綁定
+        window.enterYear = (y) => { curY = y; showPage('view-months'); render(); };
+        window.enterMonth = (m) => { curM = m; showPage('view-detail'); render(); };
+        window.addYear = () => { const y = prompt("年度?"); if(y) { state.years.unshift(y); save(); } };
+        window.updateReflection = (v) => { if(!state.monthly[`${curY}-${curM}`]) state.monthly[`${curY}-${curM}`] = {income:0,fixed:[],logs:[],reflection:""}; state.monthly[`${curY}-${curM}`].reflection = v; save(); };
+        
+        window.saveSalary = () => {
+            const b = parseFloat(document.getElementById('in-base').value)||0;
+            const d = parseFloat(document.getElementById('in-deduct').value)||0;
+            if(!state.monthly[`${curY}-${curM}`]) state.monthly[`${curY}-${curM}`] = {income:0,fixed:[],logs:[],reflection:""};
+            state.monthly[`${curY}-${curM}`].income = b - d;
+            save(); closeModal('modal-salary');
+        };
+
+        window.savePlan = () => {
+            const n = document.getElementById('in-p-name').value;
+            const a = parseFloat(document.getElementById('in-p-amt').value)||0;
+            const t = document.getElementById('in-p-type').value;
+            if(!n) return;
+            if(!state.monthly[`${curY}-${curM}`]) state.monthly[`${curY}-${curM}`] = {income:0,fixed:[],logs:[],reflection:""};
+            state.monthly[`${curY}-${curM}`].fixed.push({name:n, amt:a, type:t});
+            save(); closeModal('modal-plan');
+        };
+
+        window.delPlan = (i) => { state.monthly[`${curY}-${curM}`].fixed.splice(i,1); save(); };
+
+        window.saveLog = () => {
+            const a = parseFloat(document.getElementById('in-l-amt').value);
+            const nc = document.getElementById('in-l-newcate').value.trim();
+            const finalC = nc || activeCate;
+            if(!a || !finalC) return;
+            if(nc && !state.categories.includes(nc)) state.categories.push(nc);
+            if(!state.monthly[`${curY}-${curM}`]) state.monthly[`${curY}-${curM}`] = {income:0,fixed:[],logs:[],reflection:""};
+            state.monthly[`${curY}-${curM}`].logs.push({acc:curAcc, cate:finalC, amt:a, note:document.getElementById('in-l-note').value, date:new Date().toLocaleDateString()});
+            const acc = state.accounts.find(x => x.name === curAcc);
+            if(acc) acc.bal -= a;
+            document.getElementById('in-l-amt').value = ""; document.getElementById('in-l-note').value = ""; document.getElementById('in-l-newcate').value = "";
+            save(); closeModal('modal-log');
+        };
+
+        window.undoLog = (i) => {
+            const log = state.monthly[`${curY}-${curM}`].logs[i];
+            const acc = state.accounts.find(x => x.name === log.acc);
+            if(acc) acc.bal += log.amt;
+            state.monthly[`${curY}-${curM}`].logs.splice(i,1);
+            save();
+        };
+
+        window.saveAcc = () => {
+            const n = document.getElementById('in-a-name').value;
+            const b = parseFloat(document.getElementById('in-a-bal').value)||0;
+            if(n) { state.accounts.push({name:n, bal:b}); save(); document.getElementById('in-a-name').value=""; document.getElementById('in-a-bal').value=""; }
+        };
+
+        window.delAcc = (i) => { if(confirm("確定刪除？")) { state.accounts.splice(i,1); save(); } };
+
+        // 啟動
+        document.getElementById('splash-quote').innerText = QUOTES[Math.floor(Math.random()*QUOTES.length)];
+        
+        // 強制解鎖超時機制
+        const unlock = () => {
+            document.getElementById('splash').style.opacity = '0';
+            document.getElementById('app-content').classList.add('loaded');
+            setTimeout(() => document.getElementById('splash').style.display = 'none', 500);
+        };
+        setTimeout(unlock, 3500); // 3.5秒強制解鎖
+
+        onAuthStateChanged(auth, u => {
+            if(u){
+                user = u;
+                onSnapshot(doc(db, 'artifacts', appId, 'users', user.uid, 'state'), snap => {
+                    if(snap.exists()) state = snap.data();
+                    render();
+                    unlock();
+                });
+            } else { signInAnonymously(auth); }
+        });
+
+        // 點擊背景關閉
+        document.querySelectorAll('.modal').forEach(m => m.onclick = e => { if(e.target === m) closeModal(m.id); });
     </script>
 </body>
 </html>
