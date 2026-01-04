@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Chun 財務手帳</title>
     
-    <!-- App Icon & PWA -->
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%238c7662'/%3E%3Ctext x='50%25' y='55%25' dominant-baseline='middle' text-anchor='middle' font-family='Arial, sans-serif' font-size='40' font-weight='100' fill='white' letter-spacing='5'%3ECHUN%3C/text%3E%3C/svg%3E">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -17,7 +16,6 @@
         :root {
             --bg: #fdfaf5;
             --primary: #8c7662;
-            --primary-light: #f4f1ec;
             --text: #37352f;
             --sub: #9b9a97;
             --card: #ffffff;
@@ -33,26 +31,24 @@
         #splash {
             position: fixed; inset: 0; background: var(--bg); z-index: 99999;
             display: flex; flex-direction: column; align-items: center; justify-content: center;
-            opacity: 1; transition: opacity 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+            opacity: 1; transition: opacity 0.6s ease;
         }
-        .splash-logo { font-size: 42px; font-weight: 100; color: var(--primary); letter-spacing: 15px; margin-bottom: 25px; animation: breathe 3s infinite ease-in-out; }
+        .splash-logo { font-size: 42px; font-weight: 100; color: var(--primary); letter-spacing: 15px; margin-bottom: 25px; }
         #splash-quote { font-size: 14px; color: var(--sub); text-align: center; padding: 0 40px; line-height: 1.8; font-weight: 300; }
-        @keyframes breathe { 0%, 100% { opacity: 0.6; transform: scale(0.98); } 50% { opacity: 1; transform: scale(1); } }
 
-        /* Layout */
-        #app-content { opacity: 0; transition: opacity 0.8s ease; }
-        #app-content.active { opacity: 1; }
+        /* App Content Wrapper */
+        #app-content { display: none; opacity: 0; transition: opacity 0.5s ease; }
+        #app-content.visible { display: block; opacity: 1; }
+
         .page { padding: 20px 24px 140px; max-width: 500px; margin: 0 auto; display: none; }
-        .page.active { display: block; animation: pageIn 0.4s ease-out; }
-        @keyframes pageIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+        .page.active { display: block; }
 
         .brand { font-size: 32px; font-weight: 100; color: var(--primary); letter-spacing: 10px; text-align: center; margin: 50px 0 20px; }
-
+        
         /* Dashboard */
         .dashboard {
             background: var(--primary); color: white; border-radius: 35px; padding: 35px 24px;
             margin-bottom: 25px; box-shadow: 0 15px 30px rgba(140, 118, 98, 0.15);
-            position: relative; overflow: hidden;
         }
         .dash-label { font-size: 11px; opacity: 0.7; text-align: center; letter-spacing: 1px; }
         .dash-value { font-size: 42px; font-weight: 300; text-align: center; margin: 8px 0 25px; }
@@ -61,56 +57,37 @@
         .grid-v { font-size: 14px; font-weight: 500; }
         .grid-l { font-size: 9px; opacity: 0.6; margin-top: 4px; }
 
-        /* Section Styling */
+        /* UI Elements */
         .section-header { font-size: 12px; font-weight: 700; color: var(--sub); letter-spacing: 2px; margin: 35px 0 15px 5px; display: flex; justify-content: space-between; align-items: center; }
-        .action-text { color: var(--primary); cursor: pointer; font-size: 11px; padding: 4px 8px; border-radius: 6px; }
+        .action-text { color: var(--primary); cursor: pointer; font-size: 11px; }
         
-        .card { background: var(--card); border-radius: 24px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--border); transition: all 0.2s; position: relative; }
-        .card:active { transform: scale(0.97); background: #fcfcfc; }
+        .card { background: var(--card); border-radius: 24px; padding: 22px; margin-bottom: 15px; border: 1px solid var(--border); }
+        .card:active { transform: scale(0.98); background: #fcfcfc; }
 
-        /* Quick Record Buttons */
         .quick-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
         .quick-btn { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 18px; text-align: center; cursor: pointer; }
-        .quick-btn span { display: block; font-size: 10px; color: var(--sub); margin-bottom: 4px; }
-        .quick-btn strong { display: block; color: var(--primary); font-size: 15px; }
+        .quick-btn span { display: block; font-size: 10px; color: var(--sub); }
+        .quick-btn strong { display: block; color: var(--primary); font-size: 15px; margin-top: 4px; }
 
-        /* List Items */
-        .list-item { display: flex; justify-content: space-between; align-items: center; padding: 16px; border-bottom: 1px solid #f9f9f9; }
-        .item-info { display: flex; flex-direction: column; }
-        .item-main { font-weight: 500; font-size: 15px; }
-        .item-sub { font-size: 11px; color: var(--sub); margin-top: 2px; }
-        .item-amt { font-weight: 700; font-size: 16px; }
-        .item-amt.neg { color: var(--red); }
-        .item-amt.pos { color: var(--green); }
+        /* Modal & Forms */
+        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: flex-end; }
+        .modal-content { background: white; border-radius: 35px 35px 0 0; width: 100%; padding: 35px 24px 50px; max-height: 90vh; overflow-y: auto; }
+        
+        input, select, textarea { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #eee; font-size: 16px; margin-bottom: 12px; font-family: inherit; outline: none; }
+        .btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--primary); color: white; font-weight: 700; font-size: 16px; }
+        .btn-ghost { background: transparent; color: var(--sub); margin-top: 10px; }
 
-        /* Chips & Tags */
+        .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
+        .nav-item { flex: 1; text-align: center; color: var(--sub); font-size: 11px; }
+        .nav-item.active { color: var(--primary); font-weight: 700; }
+
         .tag { font-size: 9px; padding: 3px 7px; border-radius: 50px; font-weight: 700; margin-right: 6px; }
         .t-fixed { background: #fdeaea; color: #d32f2f; }
         .t-save { background: #e8f5e9; color: #2e7d32; }
 
         .chip-group { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; }
-        .chip { padding: 9px 18px; background: #f0f0f0; border-radius: 50px; font-size: 13px; cursor: pointer; display: flex; align-items: center; }
+        .chip { padding: 9px 18px; background: #f0f0f0; border-radius: 50px; font-size: 13px; }
         .chip.active { background: var(--primary); color: white; }
-        .chip-del { margin-left: 8px; font-weight: bold; opacity: 0.5; font-size: 14px; }
-
-        /* Inputs & Modals */
-        .modal { position: fixed; inset: 0; background: rgba(0,0,0,0.4); backdrop-filter: blur(8px); z-index: 2000; display: none; align-items: flex-end; }
-        .modal-content { background: white; border-radius: 35px 35px 0 0; width: 100%; padding: 35px 24px 50px; max-height: 90vh; overflow-y: auto; }
-        
-        input, select, textarea { width: 100%; padding: 18px; border-radius: 16px; border: 1px solid #eee; font-size: 16px; margin-bottom: 12px; font-family: inherit; outline: none; background: #fafafa; }
-        input:focus { border-color: var(--primary); background: #fff; }
-        
-        .btn { width: 100%; padding: 20px; border-radius: 20px; border: none; background: var(--primary); color: white; font-weight: 700; font-size: 16px; cursor: pointer; box-shadow: 0 8px 15px rgba(140, 118, 98, 0.2); }
-        .btn-ghost { background: transparent; color: var(--sub); box-shadow: none; margin-top: 10px; }
-
-        /* Bottom Nav */
-        .nav { position: fixed; bottom: 0; left: 0; right: 0; height: 90px; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); border-top: 1px solid #eee; display: flex; justify-content: space-around; align-items: center; padding-bottom: env(safe-area-inset-bottom); z-index: 100; }
-        .nav-item { flex: 1; text-align: center; color: var(--sub); font-size: 11px; cursor: pointer; transition: color 0.3s; }
-        .nav-item.active { color: var(--primary); font-weight: 700; }
-
-        /* Month Grid */
-        .month-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
-        .month-card { background: white; border-radius: 20px; padding: 25px 0; text-align: center; border: 1px solid var(--border); }
     </style>
 </head>
 <body>
@@ -121,27 +98,27 @@
     </div>
 
     <div id="app-content">
-        <!-- 首頁：帳本概覽 -->
+        <!-- 頁面：首頁 -->
         <div id="page-home" class="page active">
             <div class="brand">CHUN</div>
-            <div class="section-header">年度手帳 <span class="action-text" onclick="ui.addYear()">+ 新增年度</span></div>
-            <div id="year-container"></div>
+            <div class="section-header">年度手帳 <span class="action-text" onclick="app.addYear()">+ 新增</span></div>
+            <div id="year-list"></div>
             
-            <div class="section-header">帳戶資產 <span class="action-text" onclick="ui.openModal('modal-acc')">設定帳戶</span></div>
-            <div id="asset-container"></div>
+            <div class="section-header">帳戶資產 <span class="action-text" onclick="app.openModal('modal-acc')">設定</span></div>
+            <div id="asset-list"></div>
         </div>
 
-        <!-- 月份頁：年度細分 -->
+        <!-- 頁面：月份 -->
         <div id="page-months" class="page">
-            <div style="color:var(--sub); margin-bottom:20px; font-size:14px;" onclick="ui.showPage('page-home')">← 返回年度</div>
-            <h2 id="title-year" style="font-weight: 300; font-size: 36px; margin-bottom: 25px;"></h2>
-            <div class="month-grid" id="month-container"></div>
+            <div style="color:var(--sub); margin-bottom:20px;" onclick="app.showPage('page-home')">← 返回</div>
+            <h2 id="disp-year" style="font-weight: 300; font-size: 32px;"></h2>
+            <div id="month-grid" style="display:grid; grid-template-columns:repeat(3, 1fr); gap:12px;"></div>
         </div>
 
-        <!-- 詳情頁：收支核心 -->
+        <!-- 頁面：詳情 -->
         <div id="page-detail" class="page" style="padding-top:0">
             <div class="dashboard">
-                <div onclick="ui.showPage('page-months')" style="font-size:12px; opacity:0.6; margin-bottom:15px;">← 月份列表</div>
+                <div onclick="app.showPage('page-months')" style="font-size:12px; opacity:0.6; margin-bottom:15px;">← 月份列表</div>
                 <div class="dash-label">本月可用餘額</div>
                 <div class="dash-value" id="val-balance">$ 0</div>
                 <div class="dash-grid">
@@ -152,306 +129,216 @@
             </div>
 
             <div style="display:flex; justify-content:space-between; align-items:center;">
-                <h2 id="title-month" style="font-weight:300; margin:0;"></h2>
-                <div onclick="ui.openModal('modal-income')" style="font-size:11px; border:1px solid #eee; padding:6px 14px; border-radius:12px; background:white;">設定收入</div>
+                <h2 id="disp-month" style="font-weight:300;"></h2>
+                <div onclick="app.openModal('modal-income')" style="font-size:11px; border:1px solid #eee; padding:6px 12px; border-radius:10px;">設定收入</div>
             </div>
 
-            <div class="section-header">日常省思</div>
-            <textarea id="input-reflection" placeholder="今天過得如何？寫下一些觀察..." onblur="logic.saveReflection(this.value)"></textarea>
+            <textarea id="input-reflection" placeholder="今天的點滴..." onblur="app.saveReflection(this.value)" style="margin-top:15px;"></textarea>
 
             <div class="section-header">快速記帳</div>
-            <div class="quick-grid" id="quick-record-container"></div>
+            <div class="quick-grid" id="quick-btns"></div>
 
-            <div class="section-header">月度計畫 <span class="action-text" onclick="ui.openModal('modal-plan')">+ 新增計畫</span></div>
-            <div id="plan-container"></div>
+            <div class="section-header">預算與計畫 <span class="action-text" onclick="app.openModal('modal-plan')">+ 新增</span></div>
+            <div id="plan-list"></div>
 
-            <div class="section-header">明細紀錄</div>
-            <div id="log-container"></div>
+            <div class="section-header">消費明細</div>
+            <div id="log-list"></div>
         </div>
 
         <nav class="nav">
-            <div class="nav-item active" onclick="ui.showPage('page-home')">手帳首頁</div>
-            <div class="nav-item" onclick="ui.openModal('modal-acc')">資產帳戶</div>
+            <div class="nav-item active" onclick="app.showPage('page-home')">首頁</div>
+            <div class="nav-item" onclick="app.openModal('modal-acc')">帳戶</div>
         </nav>
     </div>
 
-    <!-- 彈窗：收入設定 -->
+    <!-- Modals -->
     <div id="modal-income" class="modal"><div class="modal-content">
-        <h3>月總收入設定</h3>
-        <input type="number" id="in-salary-base" placeholder="實領本薪 (+)">
-        <input type="number" id="in-salary-other" placeholder="其他收入 (+)">
-        <button class="btn" onclick="logic.saveIncome()">更新收入</button>
-        <button class="btn btn-ghost" onclick="ui.closeModal('modal-income')">取消</button>
+        <h3>設定本月總收入</h3>
+        <input type="number" id="in-inc" placeholder="本月實領收入">
+        <button class="btn" onclick="app.saveIncome()">確認</button>
+        <button class="btn btn-ghost" onclick="app.closeModal('modal-income')">取消</button>
     </div></div>
 
-    <!-- 彈窗：計畫設定 -->
     <div id="modal-plan" class="modal"><div class="modal-content">
-        <h3>新增月度計畫</h3>
-        <input type="text" id="in-plan-name" placeholder="項目名稱 (如：房租、股票存股)">
-        <input type="number" id="in-plan-amt" placeholder="計畫金額">
-        <select id="in-plan-type">
-            <option value="固定">固定支出 (必要)</option>
-            <option value="存款">理想儲蓄 (目標)</option>
-        </select>
-        <button class="btn" onclick="logic.savePlan()">加入計畫</button>
-        <button class="btn btn-ghost" onclick="ui.closeModal('modal-plan')">取消</button>
+        <h3>新增計畫</h3>
+        <input type="text" id="in-p-name" placeholder="項目名稱">
+        <input type="number" id="in-p-amt" placeholder="計畫金額">
+        <select id="in-p-type"><option value="固定">固定支出</option><option value="存款">理想儲蓄</option></select>
+        <button class="btn" onclick="app.savePlan()">新增</button>
+        <button class="btn btn-ghost" onclick="app.closeModal('modal-plan')">取消</button>
     </div></div>
 
-    <!-- 彈窗：消費記帳 -->
     <div id="modal-log" class="modal"><div class="modal-content">
-        <h3 id="log-modal-title">消費紀錄</h3>
-        <div id="log-chip-container" class="chip-group"></div>
-        <input type="text" id="in-log-newcate" placeholder="+ 新增自定義分類">
-        <input type="number" id="in-log-amt" placeholder="消費金額" inputmode="decimal">
-        <input type="text" id="in-log-note" placeholder="備註 (選填)">
-        <button class="btn" onclick="logic.saveLog()">儲存這筆紀錄</button>
-        <button class="btn btn-ghost" onclick="ui.closeModal('modal-log')">取消</button>
+        <h3 id="log-title">記帳</h3>
+        <div id="log-chips" class="chip-group"></div>
+        <input type="text" id="in-l-nc" placeholder="+ 自定義分類">
+        <input type="number" id="in-l-amt" placeholder="消費金額" inputmode="decimal">
+        <input type="text" id="in-l-note" placeholder="備註">
+        <button class="btn" onclick="app.saveLog()">儲存紀錄</button>
+        <button class="btn btn-ghost" onclick="app.closeModal('modal-log')">取消</button>
     </div></div>
 
-    <!-- 彈窗：帳戶管理 -->
     <div id="modal-acc" class="modal"><div class="modal-content">
-        <h3>帳戶資產管理</h3>
-        <div id="acc-manage-list"></div>
-        <div style="margin-top:25px; border-top:1px solid #f0f0f0; padding-top:20px;">
-            <input type="text" id="in-acc-name" placeholder="新帳戶名稱">
-            <input type="number" id="in-acc-bal" placeholder="當前餘額">
-            <button class="btn" onclick="logic.saveAccount()">新增帳戶</button>
-        </div>
-        <button class="btn btn-ghost" onclick="ui.closeModal('modal-acc')">關閉</button>
+        <h3>帳戶管理</h3>
+        <div id="acc-list"></div>
+        <hr style="border:none; border-top:1px solid #eee; margin:20px 0;">
+        <input type="text" id="in-a-name" placeholder="新帳戶名稱">
+        <input type="number" id="in-a-bal" placeholder="初始餘額">
+        <button class="btn" onclick="app.saveAcc()">新增帳戶</button>
+        <button class="btn btn-ghost" onclick="app.closeModal('modal-acc')">關閉</button>
     </div></div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-app.js";
-        import { getFirestore, doc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-firestore.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.1.0/firebase-auth.js";
+    <script>
+        // --- 核心 App 邏輯 ---
+        const app = {
+            state: {
+                years: ["2025"],
+                accounts: [{name: "現金", bal: 0}, {name: "中信", bal: 0}, {name: "台新", bal: 0}, {name: "國泰", bal: 0}],
+                categories: ["食", "衣", "住", "行", "育", "樂"],
+                monthly: {}
+            },
+            context: { year: "2025", month: "一月", account: "", category: "食" },
 
-        const firebaseConfig = JSON.parse(__firebase_config);
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'chun-finance-v6';
+            init() {
+                // 優先從 LocalStorage 讀取資料 (防止 GitHub 環境無法存取 DB)
+                const localData = localStorage.getItem('chun_finance_data');
+                if (localData) this.state = JSON.parse(localData);
 
-        const QUOTES = [
-            "「紀錄，是為了看見生活的樣貌。」",
-            "「今天的自律，是為了明天的自由。」",
-            "「每一筆支出，都在為你想要的未來投票。」",
-            "「理財，是給未來自己的一份溫柔禮物。」"
-        ];
+                this.render();
+                this.unlock();
+            },
 
-        // --- 資料狀態 ---
-        let state = {
-            years: ["2025"],
-            accounts: [
-                {name: "現金", bal: 0}, {name: "中信", bal: 0}, {name: "台新", bal: 0}, {name: "國泰", bal: 0}
-            ],
-            categories: ["食", "衣", "住", "行", "育", "樂"],
-            monthly: {}
-        };
+            unlock() {
+                const splash = document.getElementById('splash');
+                const content = document.getElementById('app-content');
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    content.classList.add('visible');
+                    setTimeout(() => splash.style.display = 'none', 600);
+                }, 2000); // 確保 2 秒後一定解鎖
+            },
 
-        let user = null;
-        let context = { year: "2025", month: "一月", account: "", category: "食" };
+            save() {
+                localStorage.setItem('chun_finance_data', JSON.stringify(this.state));
+                this.render();
+            },
 
-        // --- UI 控制 ---
-        const ui = {
             showPage(id) {
                 document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
                 document.getElementById(id).classList.add('active');
-                window.scrollTo(0,0);
             },
-            openModal(id, accName) {
-                if(accName) {
-                    context.account = accName;
-                    context.category = state.categories[0];
-                    document.getElementById('log-modal-title').innerText = `${accName} 消費紀錄`;
+
+            openModal(id, acc) {
+                if(acc) {
+                    this.context.account = acc;
+                    this.context.category = this.state.categories[0];
+                    document.getElementById('log-title').innerText = `${acc} 支出紀錄`;
                     this.renderChips();
                 }
                 document.getElementById(id).style.display = 'flex';
             },
-            closeModal(id) { document.getElementById(id).style.display = 'none'; },
-            renderChips() {
-                const container = document.getElementById('log-chip-container');
-                container.innerHTML = state.categories.map(c => `
-                    <div class="chip ${context.category === c ? 'active' : ''}" onclick="ui.selectCate('${c}')">
-                        ${c} <span class="chip-del" onclick="event.stopPropagation(); logic.delCate('${c}')">✕</span>
-                    </div>
-                `).join('');
-            },
-            selectCate(c) { context.category = c; this.renderChips(); }
-        };
-        window.ui = ui;
 
-        // --- 核心邏輯 ---
-        const logic = {
-            async save() {
-                if (user) await setDoc(doc(db, 'artifacts', appId, 'users', user.uid, 'state'), state);
+            closeModal(id) { document.getElementById(id).style.display = 'none'; },
+
+            render() {
+                // 年度清單
+                document.getElementById('year-list').innerHTML = this.state.years.map(y => `<div class="card" onclick="app.enterYear('${y}')"><strong>${y} 年度手帳</strong></div>`).join('');
+                document.getElementById('asset-list').innerHTML = this.state.accounts.map(a => `<div class="card" style="display:flex; justify-content:space-between"><span>${a.name}</span><strong>$${a.bal.toLocaleString()}</strong></div>`).join('');
+
+                // 月份網格
+                document.getElementById('disp-year').innerText = this.context.year;
+                const ms = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
+                document.getElementById('month-grid').innerHTML = ms.map(m => `<div class="card" style="text-align:center" onclick="app.enterMonth('${m}')"><strong>${m}</strong></div>`).join('');
+
+                // 詳情看板
+                const key = `${this.context.year}-${this.context.month}`;
+                const d = this.state.monthly[key] || { income: 0, plans: [], logs: [], reflection: "" };
+                document.getElementById('disp-month').innerText = `${this.context.year} · ${this.context.month}`;
+                document.getElementById('input-reflection').value = d.reflection || "";
+
+                const fAmt = (d.plans || []).filter(x => x.type === '固定').reduce((s, x) => s + x.amt, 0);
+                const sAmt = (d.plans || []).filter(x => x.type === '存款').reduce((s, x) => s + x.amt, 0);
+                const lAmt = (d.logs || []).reduce((s, x) => s + x.amt, 0);
+                const balance = d.income - fAmt - sAmt - lAmt;
+
+                document.getElementById('val-balance').innerText = `$${balance.toLocaleString()}`;
+                document.getElementById('val-fixed').innerText = `$${fAmt.toLocaleString()}`;
+                document.getElementById('val-save').innerText = `$${sAmt.toLocaleString()}`;
+                document.getElementById('val-spent').innerText = `$${lAmt.toLocaleString()}`;
+
+                document.getElementById('quick-btns').innerHTML = this.state.accounts.map(a => `<div class="quick-btn" onclick="app.openModal('modal-log', '${a.name}')"><span>${a.name}</span><strong>支出 +</strong></div>`).join('');
+                
+                document.getElementById('plan-list').innerHTML = (d.plans || []).map((p, i) => `<div class="card" style="display:flex; justify-content:space-between; padding:15px;"><span><span class="tag ${p.type==='固定'?'t-fixed':'t-save'}">${p.type}</span>${p.name}</span><strong>$${p.amt.toLocaleString()} <span onclick="app.delPlan(${i})" style="color:#ddd; margin-left:10px;">✕</span></strong></div>`).join('');
+
+                document.getElementById('log-list').innerHTML = (d.logs || []).map((l, i) => `<div class="card" style="padding:15px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between;"><div><strong>${l.cate}</strong> <small style="color:#aaa">${l.note||''}</small></div><div style="color:var(--red); font-weight:700;">-$${l.amt.toLocaleString()}</div></div><div style="font-size:10px; color:#ddd; margin-top:5px;">${l.acc} · ${l.date} <span onclick="app.undoLog(${i})" style="margin-left:10px;">撤銷</span></div></div>`).reverse().join('');
+
+                document.getElementById('acc-list').innerHTML = this.state.accounts.map((a, i) => `<div style="display:flex; justify-content:space-between; padding:10px 0; border-bottom:1px solid #eee;"><span>${a.name} ($${a.bal})</span><span onclick="app.delAcc(${i})" style="color:var(--red)">✕ 刪除</span></div>`).join('');
             },
-            addYear() { const y = prompt("請輸入年度 (例: 2026)"); if(y) { state.years.unshift(y); this.save(); } },
-            enterYear(y) { context.year = y; ui.showPage('page-months'); render(); },
-            enterMonth(m) { context.month = m; ui.showPage('page-detail'); render(); },
+
+            renderChips() {
+                document.getElementById('log-chips').innerHTML = this.state.categories.map(c => `<div class="chip ${this.context.category === c ? 'active' : ''}" onclick="app.selectCate('${c}')">${c}</div>`).join('');
+            },
+            selectCate(c) { this.context.category = c; this.renderChips(); },
+
+            enterYear(y) { this.context.year = y; this.showPage('page-months'); this.render(); },
+            enterMonth(m) { this.context.month = m; this.showPage('page-detail'); this.render(); },
             
-            saveIncome() {
-                const b = parseFloat(document.getElementById('in-salary-base').value) || 0;
-                const o = parseFloat(document.getElementById('in-salary-other').value) || 0;
-                const key = `${context.year}-${context.month}`;
-                if(!state.monthly[key]) state.monthly[key] = this.newMonth();
-                state.monthly[key].income = b + o;
-                this.save(); ui.closeModal('modal-income');
+            addYear() { const y = prompt("年度?"); if(y) { this.state.years.unshift(y); this.save(); } },
+            saveIncome() { 
+                const amt = parseFloat(document.getElementById('in-inc').value) || 0;
+                const key = `${this.context.year}-${this.context.month}`;
+                if(!this.state.monthly[key]) this.state.monthly[key] = {income:0, plans:[], logs:[], reflection:""};
+                this.state.monthly[key].income = amt;
+                this.save(); this.closeModal('modal-income');
             },
             savePlan() {
-                const n = document.getElementById('in-plan-name').value;
-                const a = parseFloat(document.getElementById('in-plan-amt').value) || 0;
-                const t = document.getElementById('in-plan-type').value;
+                const n = document.getElementById('in-p-name').value;
+                const a = parseFloat(document.getElementById('in-p-amt').value) || 0;
+                const t = document.getElementById('in-p-type').value;
                 if(!n) return;
-                const key = `${context.year}-${context.month}`;
-                if(!state.monthly[key]) state.monthly[key] = this.newMonth();
-                state.monthly[key].plans.push({name: n, amt: a, type: t});
-                this.save(); ui.closeModal('modal-plan');
+                const key = `${this.context.year}-${this.context.month}`;
+                if(!this.state.monthly[key]) this.state.monthly[key] = {income:0, plans:[], logs:[], reflection:""};
+                this.state.monthly[key].plans.push({name:n, amt:a, type:t});
+                this.save(); this.closeModal('modal-plan');
             },
-            delPlan(i) {
-                state.monthly[`${context.year}-${context.month}`].plans.splice(i, 1);
-                this.save();
-            },
+            delPlan(i) { this.state.monthly[`${this.context.year}-${this.context.month}`].plans.splice(i,1); this.save(); },
             saveLog() {
-                const a = parseFloat(document.getElementById('in-log-amt').value);
-                const nc = document.getElementById('in-log-newcate').value.trim();
-                const finalC = nc || context.category;
-                if(!a || !finalC) return;
-                
-                if(nc && !state.categories.includes(nc)) state.categories.push(nc);
-                const key = `${context.year}-${context.month}`;
-                if(!state.monthly[key]) state.monthly[key] = this.newMonth();
-                state.monthly[key].logs.push({
-                    acc: context.account, cate: finalC, amt: a, 
-                    note: document.getElementById('in-log-note').value,
-                    date: new Date().toLocaleDateString('zh-TW', {month:'numeric', day:'numeric'})
-                });
-                const acc = state.accounts.find(x => x.name === context.account);
+                const a = parseFloat(document.getElementById('in-l-amt').value);
+                const nc = document.getElementById('in-l-nc').value.trim();
+                const finalC = nc || this.context.category;
+                if(!a) return;
+                if(nc && !this.state.categories.includes(nc)) this.state.categories.push(nc);
+                const key = `${this.context.year}-${this.context.month}`;
+                if(!this.state.monthly[key]) this.state.monthly[key] = {income:0, plans:[], logs:[], reflection:""};
+                this.state.monthly[key].logs.push({acc:this.context.account, cate:finalC, amt:a, note:document.getElementById('in-l-note').value, date:new Date().toLocaleDateString()});
+                const acc = this.state.accounts.find(x => x.name === this.context.account);
                 if(acc) acc.bal -= a;
-                
-                document.getElementById('in-log-amt').value = "";
-                document.getElementById('in-log-newcate').value = "";
-                document.getElementById('in-log-note').value = "";
-                this.save(); ui.closeModal('modal-log');
+                this.save(); this.closeModal('modal-log');
+                document.getElementById('in-l-amt').value=""; document.getElementById('in-l-nc').value=""; document.getElementById('in-l-note').value="";
             },
             undoLog(i) {
-                const log = state.monthly[`${context.year}-${context.month}`].logs[i];
-                const acc = state.accounts.find(x => x.name === log.acc);
+                const log = this.state.monthly[`${this.context.year}-${this.context.month}`].logs[i];
+                const acc = this.state.accounts.find(x => x.name === log.acc);
                 if(acc) acc.bal += log.amt;
-                state.monthly[`${context.year}-${context.month}`].logs.splice(i, 1);
+                this.state.monthly[`${this.context.year}-${this.context.month}`].logs.splice(i,1);
                 this.save();
             },
-            saveAccount() {
-                const n = document.getElementById('in-acc-name').value;
-                const b = parseFloat(document.getElementById('in-acc-bal').value) || 0;
-                if(n) { state.accounts.push({name: n, bal: b}); this.save(); document.getElementById('in-acc-name').value=""; }
+            saveAcc() {
+                const n = document.getElementById('in-a-name').value;
+                const b = parseFloat(document.getElementById('in-a-bal').value) || 0;
+                if(n) { this.state.accounts.push({name:n, bal:b}); this.save(); document.getElementById('in-a-name').value=""; }
             },
-            delAcc(i) { if(confirm("確定刪除此帳戶？")) { state.accounts.splice(i, 1); this.save(); } },
-            delCate(c) { state.categories = state.categories.filter(x => x !== c); this.save(); ui.renderChips(); },
+            delAcc(i) { this.state.accounts.splice(i,1); this.save(); },
             saveReflection(v) {
-                const key = `${context.year}-${context.month}`;
-                if(!state.monthly[key]) state.monthly[key] = this.newMonth();
-                state.monthly[key].reflection = v;
+                const key = `${this.context.year}-${this.context.month}`;
+                if(!this.state.monthly[key]) this.state.monthly[key] = {income:0, plans:[], logs:[], reflection:""};
+                this.state.monthly[key].reflection = v;
                 this.save();
-            },
-            newMonth() { return { income: 0, plans: [], logs: [], reflection: "" }; }
-        };
-        window.logic = logic;
-
-        // --- 渲染引擎 ---
-        const render = () => {
-            // 年度與資產 (首頁)
-            document.getElementById('year-container').innerHTML = state.years.map(y => `
-                <div class="card" onclick="logic.enterYear('${y}')"><strong>${y} 年度總帳</strong></div>
-            `).join('');
-            
-            document.getElementById('asset-container').innerHTML = state.accounts.map(a => `
-                <div class="card" style="display:flex; justify-content:space-between">
-                    <span>${a.name}</span><strong>$ ${a.bal.toLocaleString()}</strong>
-                </div>
-            `).join('');
-
-            // 月份列表
-            document.getElementById('title-year').innerText = context.year;
-            const ms = ["一月","二月","三月","四月","五月","六月","七月","八月","九月","十月","十一月","十二月"];
-            document.getElementById('month-container').innerHTML = ms.map(m => `
-                <div class="month-card" onclick="logic.enterMonth('${m}')"><strong>${m}</strong></div>
-            `).join('');
-
-            // 詳情收支
-            const key = `${context.year}-${context.month}`;
-            const d = state.monthly[key] || logic.newMonth();
-            document.getElementById('title-month').innerText = `${context.year} · ${context.month}`;
-            document.getElementById('input-reflection').value = d.reflection || "";
-
-            const fAmt = d.plans.filter(x=>x.type==='固定').reduce((s,x)=>s+x.amt,0);
-            const sAmt = d.plans.filter(x=>x.type==='存款').reduce((s,x)=>s+x.amt,0);
-            const lAmt = d.logs.reduce((s,x)=>s+x.amt,0);
-            const balance = d.income - fAmt - sAmt - lAmt;
-
-            document.getElementById('val-balance').innerText = `$ ${balance.toLocaleString()}`;
-            document.getElementById('val-fixed').innerText = `$ ${fAmt.toLocaleString()}`;
-            document.getElementById('val-save').innerText = `$ ${sAmt.toLocaleString()}`;
-            document.getElementById('val-spent').innerText = `$ ${lAmt.toLocaleString()}`;
-
-            document.getElementById('quick-record-container').innerHTML = state.accounts.map(a => `
-                <div class="quick-btn" onclick="ui.openModal('modal-log', '${a.name}')">
-                    <span>${a.name}</span><strong>支出 +</strong>
-                </div>
-            `).join('');
-
-            document.getElementById('plan-container').innerHTML = d.plans.map((p, i) => `
-                <div class="card" style="padding:15px; display:flex; justify-content:space-between; align-items:center;">
-                    <div><span class="tag ${p.type==='固定'?'t-fixed':'t-save'}">${p.type}</span>${p.name}</div>
-                    <strong>$${p.amt.toLocaleString()} <span onclick="logic.delPlan(${i})" style="color:#ddd; margin-left:8px;">✕</span></strong>
-                </div>
-            `).join('') || '<div style="text-align:center; padding:20px; color:#ccc; font-size:12px;">尚無預算計畫</div>';
-
-            document.getElementById('log-container').innerHTML = d.logs.map((l, i) => `
-                <div class="list-item">
-                    <div class="item-info">
-                        <span class="item-main">${l.cate} <small style="color:#aaa; font-weight:400;">${l.note?'('+l.note+')':''}</small></span>
-                        <span class="item-sub">${l.acc} · ${l.date}</span>
-                    </div>
-                    <div class="item-amt neg">-$${l.amt.toLocaleString()} <span onclick="logic.undoLog(${i})" style="color:#eee; margin-left:8px; font-size:10px;">撤銷</span></div>
-                </div>
-            `).reverse().join('') || '<div style="text-align:center; padding:30px; color:#ccc; font-size:12px;">本月尚無消費紀錄</div>';
-
-            document.getElementById('acc-manage-list').innerHTML = state.accounts.map((a, i) => `
-                <div class="list-item">
-                    <span>${a.name} ($${a.bal.toLocaleString()})</span>
-                    <span onclick="logic.delAcc(${i})" style="color:var(--red); font-size:12px;">✕ 刪除</span>
-                </div>
-            `).join('');
+            }
         };
 
-        // --- 初始化啟動 ---
-        window.onload = () => {
-            document.getElementById('splash-quote').innerText = QUOTES[Math.floor(Math.random()*QUOTES.length)];
-            
-            const forceUnlock = setTimeout(() => {
-                document.getElementById('splash').style.opacity = '0';
-                document.getElementById('app-content').classList.add('active');
-                setTimeout(() => document.getElementById('splash').style.display = 'none', 600);
-            }, 3000);
-
-            onAuthStateChanged(auth, u => {
-                if(u){
-                    user = u;
-                    onSnapshot(doc(db, 'artifacts', appId, 'users', user.uid, 'state'), snap => {
-                        if(snap.exists()) state = snap.data();
-                        render();
-                        // 資料載入後提前解鎖
-                        clearTimeout(forceUnlock);
-                        document.getElementById('splash').style.opacity = '0';
-                        document.getElementById('app-content').classList.add('active');
-                        setTimeout(() => document.getElementById('splash').style.display = 'none', 600);
-                    });
-                } else { signInAnonymously(auth); }
-            });
-
-            // 點擊 Modal 背景關閉
-            document.querySelectorAll('.modal').forEach(m => m.onclick = e => { if(e.target === m) ui.closeModal(m.id); });
-        };
+        window.onload = () => app.init();
+        document.querySelectorAll('.modal').forEach(m => m.onclick = e => { if(e.target === m) app.closeModal(m.id); });
     </script>
 </body>
 </html>
